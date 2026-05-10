@@ -9,28 +9,26 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
 .app{max-width:940px;margin:0 auto;padding:1rem}
-.header{text-align:center;padding:1.2rem 0 0.8rem}
+.header{text-align:center;padding:1.2rem 0 .8rem}
 .header h1{font-size:22px;font-weight:700}
-.header p{font-size:12px;color:#666;margin-top:4px}
-.tabs{display:flex;gap:3px;margin:.65rem 0;background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:4px;overflow-x:auto}
-.tab{flex:1;min-width:60px;padding:7px 4px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-size:12px;color:#666;font-family:inherit;white-space:nowrap;position:relative}
+.header p{font-size:12px;color:#666;margin-top:3px}
+.tabs{display:flex;gap:3px;margin:.6rem 0;background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:4px;overflow-x:auto}
+.tab{flex:1;min-width:55px;padding:7px 4px;border:none;background:transparent;border-radius:8px;cursor:pointer;font-size:12px;color:#666;font-family:inherit;white-space:nowrap;position:relative}
 .tab.active{background:#f0f0e8;color:#1a1a1a;font-weight:700}
 .tab-admin-btn::after{content:' 🔒';font-size:9px}
 .tab-admin-btn.unlocked::after{content:' 🔓'}
 .card{background:#fff;border:1px solid #e0e0d8;border-radius:12px;padding:1rem 1.2rem;margin-bottom:.7rem}
 .sec{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 .5rem}
 .sec:first-child{margin-top:0}
-
-/* MATCH */
-.mrow{display:grid;grid-template-columns:1fr 130px 1fr;gap:6px;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0e8}
+.mrow{display:grid;grid-template-columns:1fr 125px 1fr;gap:6px;align-items:center;padding:9px 0;border-bottom:1px solid #f0f0e8}
 .mrow:last-child{border-bottom:none}
 .tname{font-size:12px;font-weight:700}
 .th{text-align:right}.ta{text-align:left}
 .mcenter{display:flex;flex-direction:column;align-items:center;gap:3px}
 .mdate{font-size:10px;color:#999}
 .score-wrap{display:flex;align-items:center;gap:3px}
-.score-in{width:32px;height:30px;border:1px solid #ccc;border-radius:6px;text-align:center;font-size:14px;font-weight:700;font-family:inherit;background:#fff;padding:0}
-.score-dash{font-size:15px;font-weight:700;color:#999}
+.score-in{width:30px;height:28px;border:1px solid #ccc;border-radius:6px;text-align:center;font-size:14px;font-weight:700;font-family:inherit;background:#fff;padding:0}
+.score-dash{font-size:14px;font-weight:700;color:#999}
 .score-wrap.filled .score-in{background:#dbeeff;border-color:#185FA5;color:#0c447c}
 .score-wrap.correct .score-in{background:#d4edda;border-color:#2d6a1a;color:#1a4a0a}
 .score-wrap.wrong .score-in{background:#fde8e8;border-color:#a32d2d;color:#7a1f1f}
@@ -40,18 +38,12 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 .tag-sign{background:#fff3cd;color:#633806}
 .tag-wrong{background:#fde8e8;color:#7a1f1f}
 .res-lbl{font-size:10px;padding:2px 7px;border-radius:4px;background:#dbeeff;color:#0c447c}
-
-/* CHIPS */
 .chip-wrap{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
 .chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#f0f0e8;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid transparent}
 .chip.active{border-color:#185FA5;background:#dbeeff;color:#0c447c}
-
-/* PROGRESS */
 .prog-bar{height:4px;background:#f0f0e8;border-radius:2px;overflow:hidden}
 .prog-fill{height:100%;background:#185FA5;border-radius:2px}
 .prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:#888;margin-top:3px;margin-bottom:.7rem}
-
-/* RANKING */
 .rnk-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0e8}
 .rnk-item:last-child{border-bottom:none}
 .rnk-pos{font-size:17px;font-weight:700;min-width:26px;color:#999}
@@ -61,16 +53,12 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 .rnk-bar{height:100%;background:#185FA5;border-radius:2px}
 .rnk-pts{font-size:12px;color:#666;text-align:right;min-width:60px}
 .rnk-pts strong{color:#1a1a1a;font-size:17px;font-weight:700;display:block}
-
-/* PREMIOS */
 .prem-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.7rem}
 .prem-box{background:#f0f0e8;border-radius:8px;padding:1rem;text-align:center}
 .prem-amt{font-size:22px;font-weight:700;color:#185FA5}
 .prem-lbl{font-size:12px;color:#666;margin-top:4px}
 .dist-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0e8;font-size:13px}
 .dist-row:last-child{border-bottom:none}
-
-/* FORMS */
 .adm-sel{width:100%;padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:13px;background:#fff;margin-bottom:8px}
 .adm-inp{padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:13px;background:#fff}
 .btn{padding:7px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;background:#fff}
@@ -111,48 +99,92 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 .modal-err{font-size:12px;color:#a32d2d;min-height:18px;margin-bottom:8px}
 .modal-btns{display:flex;gap:8px}
 
-/* ── REGLAS ──────────────────────────────────────── */
-.rules-hero{background:linear-gradient(135deg,#0c447c 0%,#185FA5 60%,#2d6a1a 100%);border-radius:16px;padding:2rem 1.5rem;text-align:center;color:#fff;margin-bottom:1rem;position:relative;overflow:hidden}
-.rules-hero h2{font-size:22px;font-weight:700;margin-bottom:.4rem}
-.rules-hero p{font-size:13px;opacity:.85}
-.rules-hero .ball{font-size:48px;display:block;margin-bottom:.5rem;animation:spin 4s linear infinite}
-@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+/* ── INSTRUCTIVO ANIMADO ───────────────────────────────── */
+.tutorial-wrap{position:relative}
+.tutorial-hero{background:#0c447c;border-radius:16px;padding:2rem 1.5rem 1.5rem;color:#fff;text-align:center;margin-bottom:1rem;overflow:hidden;position:relative}
+.tutorial-hero::before{content:'⚽';font-size:120px;position:absolute;right:-20px;top:-10px;opacity:.08;line-height:1}
+.tutorial-hero h2{font-size:20px;font-weight:700;margin-bottom:.3rem}
+.tutorial-hero p{font-size:13px;opacity:.8;margin-bottom:1.2rem}
+.hero-stats{display:flex;justify-content:center;gap:2rem;margin-top:.5rem}
+.hero-stat{text-align:center}
+.hero-stat-num{font-size:24px;font-weight:700}
+.hero-stat-lbl{font-size:11px;opacity:.7;margin-top:2px}
 
-.pts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:1rem}
-.pts-card{background:#fff;border:1px solid #e0e0d8;border-radius:12px;overflow:hidden}
-.pts-card-head{padding:10px 14px;font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
-.pts-card-body{padding:0}
-.pts-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #f5f5f0;font-size:13px}
-.pts-row:last-child{border-bottom:none}
-.pts-badge{font-size:13px;font-weight:700;min-width:50px;text-align:center;padding:4px 8px;border-radius:6px;white-space:nowrap}
-.pts-desc{flex:1;color:#333;line-height:1.4}
-.pts-ex{font-size:11px;color:#888;margin-top:2px}
+/* Step cards */
+.steps-nav{display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:4px}
+.step-nav-btn{padding:6px 14px;border:1.5px solid #e0e0d8;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:#fff;color:#888;white-space:nowrap;transition:all .15s}
+.step-nav-btn.active{background:#185FA5;color:#fff;border-color:#185FA5}
 
-.timeline{position:relative;padding-left:28px;margin-bottom:1rem}
-.timeline::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:2px;background:#e0e0d8;border-radius:2px}
-.tl-item{position:relative;margin-bottom:1rem}
-.tl-dot{width:20px;height:20px;border-radius:50%;position:absolute;left:-28px;top:2px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
-.tl-title{font-size:14px;font-weight:700;margin-bottom:3px}
-.tl-desc{font-size:12px;color:#666;line-height:1.5}
+.step-panel{display:none;animation:fadeIn .25s ease}
+.step-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-@media(max-width:560px){.prem-grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 115px 1fr}.pts-grid{grid-template-columns:1fr}}
+.step-card{background:#fff;border:1px solid #e0e0d8;border-radius:16px;overflow:hidden;margin-bottom:.7rem}
+.step-card-head{padding:1.2rem 1.5rem;color:#fff;display:flex;align-items:center;gap:14px}
+.step-num-big{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0}
+.step-head-text h3{font-size:16px;font-weight:700;margin-bottom:2px}
+.step-head-text p{font-size:12px;opacity:.85}
+.step-card-body{padding:1.2rem 1.5rem}
+
+/* Mock Excel */
+.mock-excel{border:1px solid #e0e0d8;border-radius:8px;overflow:hidden;font-size:12px;margin:1rem 0}
+.mock-row{display:grid;align-items:center}
+.mock-cell{padding:5px 8px;border-right:1px solid #f0f0e8;border-bottom:1px solid #f0f0e8}
+.mock-cell:last-child{border-right:none}
+.mock-header{background:#1A5FA8;color:#fff;font-weight:700;font-size:11px}
+.mock-name{background:#D6E4F7;color:#0c447c;font-weight:700;font-size:12px}
+.mock-input{background:#FFF9C4;color:#1A5FA8;font-weight:700;text-align:center}
+.mock-auto{background:#f2f2f2;color:#666;font-style:italic;text-align:center;font-size:11px}
+.mock-pts{background:#E4F7D6;color:#2D6A1A;font-weight:700;text-align:center}
+.mock-highlight{animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Puntos visual */
+.pts-showcase{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:1rem 0}
+.pts-item{border-radius:10px;padding:.9rem 1rem;display:flex;align-items:center;gap:12px}
+.pts-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.pts-detail h4{font-size:14px;font-weight:700;margin-bottom:2px}
+.pts-detail p{font-size:11px;opacity:.8;line-height:1.4}
+
+/* Timeline */
+.tl{padding-left:24px;position:relative}
+.tl::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:#e0e0d8;border-radius:2px}
+.tl-item{position:relative;margin-bottom:14px;padding-left:6px}
+.tl-dot{width:18px;height:18px;border-radius:50%;position:absolute;left:-24px;top:2px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.tl-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.tl-desc{font-size:12px;color:#555;line-height:1.5}
+
+/* Nav buttons */
+.step-nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:1rem}
+.step-counter{font-size:12px;color:#888}
+
+/* PRONOS groups */
+.group-pred-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f0;font-size:13px}
+.group-pred-row:last-child{border-bottom:none}
+.group-pred-lbl{min-width:90px;font-weight:700;color:#555;font-size:12px}
+.group-pred-input{flex:1;padding:5px 10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:12px;background:#fff9e6}
+.group-pred-pts{font-size:11px;padding:2px 7px;border-radius:4px;background:#d4edda;color:#1a4a0a;font-weight:700;white-space:nowrap}
+
+@media(max-width:560px){.prem-grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 110px 1fr}.pts-showcase{grid-template-columns:1fr}.hero-stats{gap:1.2rem}}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
     <h1>⚽ Quiniela Mundial 2026</h1>
-    <p>México, USA &amp; Canadá · 11 Jun – 19 Jul · 48 partidos fase de grupos</p>
+    <p>México, USA &amp; Canadá · 11 Jun – 19 Jul · 12 grupos · 104 partidos</p>
   </div>
   <div class="tabs">
-    <button class="tab active"        onclick="showTab('reglas')">📋 Reglas</button>
+    <button class="tab active"        onclick="showTab('tutorial')">📋 Cómo jugar</button>
     <button class="tab"               onclick="showTab('pronos')">Pronósticos</button>
+    <button class="tab"               onclick="showTab('grupos')">Grupos</button>
     <button class="tab"               onclick="showTab('ranking')">Ranking</button>
     <button class="tab"               onclick="showTab('premios')">Premios</button>
     <button class="tab tab-admin-btn" id="tab-admin-btn" onclick="tryAdmin()">Admin</button>
   </div>
-  <div id="t-reglas"></div>
+  <div id="t-tutorial"></div>
   <div id="t-pronos"  style="display:none"></div>
+  <div id="t-grupos"  style="display:none"></div>
   <div id="t-ranking" style="display:none"></div>
   <div id="t-premios" style="display:none"></div>
   <div id="t-admin"   style="display:none"></div>
@@ -224,6 +256,27 @@ const MATCHES=[
   {id:'m48',g:'H',d:'6 Jul',h:'Irán',a:'Suiza'},
 ];
 
+const GROUPS_DATA={
+  A:['México','Sudáfrica','Corea del Sur','Rep. Checa'],
+  B:['España','Marruecos','Portugal','Argentina'],
+  C:['Francia','Brasil','Bélgica','Japón'],
+  D:['Alemania','Países Bajos','Inglaterra','Estados Unidos'],
+  E:['Italia','Uruguay','Ecuador','Senegal'],
+  F:['Colombia','Polonia','Camerún','Turquía'],
+  G:['Croacia','Arabia Saudita','Australia','Ghana'],
+  H:['Serbia','Irán','Suiza','Dinamarca'],
+  I:['Por definir','Por definir','Por definir','Por definir'],
+  J:['Por definir','Por definir','Por definir','Por definir'],
+  K:['Por definir','Por definir','Por definir','Por definir'],
+  L:['Por definir','Por definir','Por definir','Por definir'],
+};
+
+const GROUP_COLORS={
+  A:'#1A5FA8',B:'#2D6A1A',C:'#5B2C8C',D:'#F4901A',
+  E:'#A32D2D',F:'#4A4A4A',G:'#0C6B6B',H:'#7A4A00',
+  I:'#4A4A4A',J:'#4A4A4A',K:'#4A4A4A',L:'#4A4A4A'
+};
+
 const DEF={cuota:200,reg:40,p1:50,p2:30,p3:20,pts_exact:3,pts_sign:1,pw_hash:'',pw_set:false};
 const S={
   predictions:  JSON.parse(localStorage.getItem('q26_preds') ||'{}'),
@@ -231,22 +284,23 @@ const S={
   participants: JSON.parse(localStorage.getItem('q26_parts') ||'["Ana","Carlos","Sofía","Luis","María"]'),
   active:       localStorage.getItem('q26_active')||'Ana',
   cfg:          {...DEF,...JSON.parse(localStorage.getItem('q26_cfg')||'{}')},
-  adminUnlocked:false,tab:'reglas'
+  groupPreds:   JSON.parse(localStorage.getItem('q26_grp')   ||'{}'),
+  adminUnlocked:false, tab:'tutorial', tutorialStep:0
 };
 
 function save(){
-  localStorage.setItem('q26_preds', JSON.stringify(S.predictions));
-  localStorage.setItem('q26_res',   JSON.stringify(S.results));
-  localStorage.setItem('q26_parts', JSON.stringify(S.participants));
-  localStorage.setItem('q26_active',S.active);
-  localStorage.setItem('q26_cfg',   JSON.stringify(S.cfg));
+  localStorage.setItem('q26_preds',  JSON.stringify(S.predictions));
+  localStorage.setItem('q26_res',    JSON.stringify(S.results));
+  localStorage.setItem('q26_parts',  JSON.stringify(S.participants));
+  localStorage.setItem('q26_active', S.active);
+  localStorage.setItem('q26_cfg',    JSON.stringify(S.cfg));
+  localStorage.setItem('q26_grp',    JSON.stringify(S.groupPreds));
 }
 
 async function sha256(t){
   const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));
   return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
-
 function parseScore(s){
   if(!s&&s!==0)return null;
   const m=String(s).trim().match(/^(\d+)\s*[-–]\s*(\d+)$/);
@@ -275,7 +329,7 @@ function tryAdmin(){
   const first=!S.cfg.pw_set;
   document.getElementById('modal-icon').textContent=first?'⚙️':'🔐';
   document.getElementById('modal-title').textContent=first?'Crear contraseña admin':'Área de administración';
-  document.getElementById('modal-desc').textContent=first?'Primera vez: crea la contraseña de administradora.':'Solo la administradora puede acceder aquí.';
+  document.getElementById('modal-desc').textContent=first?'Primera vez: crea tu contraseña de administradora.':'Solo la administradora puede acceder aquí.';
   document.getElementById('pw-err').textContent='';
   document.getElementById('pw-in').value='';
   document.getElementById('pw-modal').style.display='flex';
@@ -295,149 +349,285 @@ async function checkPw(){
   else{document.getElementById('pw-err').textContent='❌ Contraseña incorrecta';document.getElementById('pw-in').value='';document.getElementById('pw-in').focus();}
 }
 function unlockAdmin(){S.adminUnlocked=true;document.getElementById('tab-admin-btn').classList.add('unlocked');}
-function lockAdmin(){S.adminUnlocked=false;document.getElementById('tab-admin-btn').classList.remove('unlocked');showTab('reglas');}
+function lockAdmin(){S.adminUnlocked=false;document.getElementById('tab-admin-btn').classList.remove('unlocked');showTab('tutorial');}
 
 // ── TABS ──────────────────────────────────────────
 function showTab(tab){
   if(tab==='admin'&&!S.adminUnlocked){tryAdmin();return;}
   S.tab=tab;
-  ['reglas','pronos','ranking','premios','admin'].forEach(t=>{
+  ['tutorial','pronos','grupos','ranking','premios','admin'].forEach(t=>{
     document.getElementById('t-'+t).style.display=t===tab?'':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i)=>{
-    el.classList.toggle('active',['reglas','pronos','ranking','premios','admin'][i]===tab);
+    el.classList.toggle('active',['tutorial','pronos','grupos','ranking','premios','admin'][i]===tab);
   });
-  ({reglas:renderReglas,pronos:renderPronos,ranking:renderRanking,premios:renderPremios,admin:renderAdmin})[tab]();
+  ({tutorial:renderTutorial,pronos:renderPronos,grupos:renderGrupos,ranking:renderRanking,premios:renderPremios,admin:renderAdmin})[tab]();
 }
 
-// ── REGLAS ────────────────────────────────────────
-function renderReglas(){
-  const el=document.getElementById('t-reglas');
+// ══════════════════════════════════════════════════
+// TUTORIAL ANIMADO
+// ══════════════════════════════════════════════════
+const STEPS=[
+  {label:'Bienvenida',color:'#0c447c'},
+  {label:'Paso 1: Excel',color:'#185FA5'},
+  {label:'Paso 2: Llenar',color:'#2d6a1a'},
+  {label:'Paso 3: Entregar',color:'#5B2C8C'},
+  {label:'Puntos',color:'#F4901A'},
+  {label:'Premios',color:'#a32d2d'},
+];
+
+function renderTutorial(){
+  const el=document.getElementById('t-tutorial');
+  const n=S.participants.length, total=n*S.cfg.cuota;
   el.innerHTML=`
-  <div class="rules-hero">
-    <span class="ball">⚽</span>
-    <h2>Quiniela Mundial 2026</h2>
-    <p>Todo lo que necesitas saber para participar y ganar</p>
-  </div>
-
-  <div class="card">
-    <div class="sec">¿Cómo participar?</div>
-    <div class="timeline">
-      <div class="tl-item">
-        <div class="tl-dot" style="background:#185FA5">1</div>
-        <div class="tl-title">Llena tu Excel antes del 11 de junio</div>
-        <div class="tl-desc">Pide la plantilla a la administradora. Escribe tu nombre, los marcadores que pronosticas para los 48 partidos y tus pronósticos iniciales (top 4, premios, México).</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot" style="background:#2d6a1a">2</div>
-        <div class="tl-title">Entrega tu Excel a la administradora</div>
-        <div class="tl-desc">Mándalo por WhatsApp antes de que empiece el primer partido. Después no se aceptan cambios.</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot" style="background:#BA7517">3</div>
-        <div class="tl-title">Sigue el ranking aquí en tiempo real</div>
-        <div class="tl-desc">Conforme avancen los partidos, la admin ingresa los resultados y el ranking se actualiza automáticamente.</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-dot" style="background:#a32d2d">4</div>
-        <div class="tl-title">Liguilla — pronósticos adicionales</div>
-        <div class="tl-desc">Cuando empiece la eliminación directa, la admin te mandará una nueva hoja para que pronostiques los marcadores de liguilla.</div>
-      </div>
+  <div class="tutorial-wrap">
+    <div class="steps-nav" id="steps-nav">
+      ${STEPS.map((s,i)=>`<button class="step-nav-btn ${i===S.tutorialStep?'active':''}" onclick="goStep(${i})">${s.label}</button>`).join('')}
     </div>
-  </div>
 
-  <div class="pts-grid">
-    <div class="pts-card">
-      <div class="pts-card-head" style="background:#185FA5">⚽ Partidos de fase de grupos</div>
-      <div class="pts-card-body">
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#d4edda;color:#1a4a0a">3 pts</div>
-          <div class="pts-desc">Marcador exacto acertado<div class="pts-ex">Ej: pronosticaste 2-1 y fue 2-1</div></div>
+    <!-- PASO 0: BIENVENIDA -->
+    <div class="step-panel ${S.tutorialStep===0?'active':''}" id="sp0">
+      <div class="tutorial-hero">
+        <div style="font-size:56px;margin-bottom:.5rem">⚽</div>
+        <h2>¡Bienvenida a la Quiniela Mundial 2026!</h2>
+        <p>Aquí te explicamos todo lo que necesitas saber para participar</p>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-num">48</div><div class="hero-stat-lbl">Partidos fase grupos</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-lbl">Grupos</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">$${total.toLocaleString()}</div><div class="hero-stat-lbl">Bote total</div></div>
         </div>
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#fff3cd;color:#633806">1 pt</div>
-          <div class="pts-desc">Solo ganador o empate correcto<div class="pts-ex">Ej: pronosticaste 2-1 y fue 3-1</div></div>
-        </div>
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#fde8e8;color:#7a1f1f">0 pts</div>
-          <div class="pts-desc">Resultado incorrecto<div class="pts-ex">Ej: pronosticaste Local y ganó el Visitante</div></div>
+      </div>
+      <div class="card">
+        <div class="sec">¿Cómo funciona?</div>
+        <div class="tl">
+          <div class="tl-item"><div class="tl-dot" style="background:#185FA5">1</div><div class="tl-title">Antes del mundial — llena tu plantilla</div><div class="tl-desc">Descarga el Excel, escribe tus pronósticos de marcadores y predicciones especiales. Entrégalo antes del <strong>11 de junio</strong>.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:#2d6a1a">2</div><div class="tl-title">Durante la fase de grupos — sigue el ranking</div><div class="tl-desc">Conforme se juegan los partidos, el ranking se actualiza aquí automáticamente. Puedes ver tus aciertos en tiempo real.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:#5B2C8C">3</div><div class="tl-title">Liguilla — pronósticos adicionales</div><div class="tl-desc">Cuando terminen los grupos, la admin te manda una hoja nueva para que pronostiques los marcadores de eliminación directa.</div></div>
+          <div class="tl-item"><div class="tl-dot" style="background:#a32d2d">4</div><div class="tl-title">Final — se reparten los premios</div><div class="tl-desc">Gana quien tenga más puntos. En caso de empate, decide el mayor número de marcadores exactos.</div></div>
         </div>
       </div>
     </div>
 
-    <div class="pts-card">
-      <div class="pts-card-head" style="background:#2d6a1a">📊 Clasificación de grupos</div>
-      <div class="pts-card-body">
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#d4edda;color:#1a4a0a">2 pts</div>
-          <div class="pts-desc">1er lugar de grupo acertado</div>
+    <!-- PASO 1: DESCARGAR EXCEL -->
+    <div class="step-panel ${S.tutorialStep===1?'active':''}" id="sp1">
+      <div class="step-card">
+        <div class="step-card-head" style="background:#185FA5">
+          <div class="step-num-big">1</div>
+          <div class="step-head-text"><h3>Pide y descarga tu plantilla Excel</h3><p>La administradora te la manda por WhatsApp</p></div>
         </div>
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#d4edda;color:#1a4a0a">2 pts</div>
-          <div class="pts-desc">2do lugar de grupo acertado</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="pts-card">
-      <div class="pts-card-head" style="background:#5B2C8C">🏅 Top 4 del mundial</div>
-      <div class="pts-card-body">
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#EAD9F7;color:#3d1a6e">5 pts</div>
-          <div class="pts-desc">País en top 4 acertado (en cualquier orden)</div>
-        </div>
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#EAD9F7;color:#3d1a6e">10 pts</div>
-          <div class="pts-desc">Aciertas al campeón del mundial</div>
-        </div>
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#5B2C8C;color:#fff">25 pts</div>
-          <div class="pts-desc">Top 4 en orden exacto (1°, 2°, 3°, 4°)<div class="pts-ex">¡El premio más grande!</div></div>
+        <div class="step-card-body">
+          <p style="font-size:13px;color:#444;margin-bottom:1rem;line-height:1.6">El archivo tiene <strong>5 hojas</strong>. Solo tú llenas las dos primeras — las otras son para referencia o para la liguilla.</p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:1rem">
+            ${[['📘 Grupos','Solo lectura — muestra todos los equipos','#D6E4F7','#0c447c'],
+               ['🟢 Fase de Grupos','TÚ la llenas — marcadores','#E4F7D6','#1a4a0a'],
+               ['🟣 Pronósticos Iniciales','TÚ la llenas — predicciones especiales','#EAD9F7','#3d1a6e'],
+               ['🟠 Liguilla','La recibirás después','#FDE9C8','#633806'],
+               ['⚫ Instrucciones','Lee esto primero','#f0f0e8','#333']].map(([t,d,bg,fg])=>`
+            <div style="background:${bg};border-radius:8px;padding:.7rem;font-size:11px">
+              <div style="font-weight:700;color:${fg};margin-bottom:3px">${t}</div>
+              <div style="color:${fg};opacity:.8">${d}</div>
+            </div>`).join('')}
+          </div>
+          <div class="alert a-warn">⚠️ Hay una plantilla por persona. No compartas tu archivo — cada quien tiene el suyo.</div>
         </div>
       </div>
     </div>
 
-    <div class="pts-card">
-      <div class="pts-card-head" style="background:#F4901A">⭐ Premios individuales</div>
-      <div class="pts-card-body">
-        <div class="pts-row"><div class="pts-badge" style="background:#FDE9C8;color:#633806">5 pts</div><div class="pts-desc">🏆 Balón de Oro (MVP del torneo)</div></div>
-        <div class="pts-row"><div class="pts-badge" style="background:#FDE9C8;color:#633806">5 pts</div><div class="pts-desc">👟 Bota de Oro (goleador del torneo)</div></div>
-        <div class="pts-row"><div class="pts-badge" style="background:#FDE9C8;color:#633806">5 pts</div><div class="pts-desc">🧤 Guante de Oro (mejor portero)</div></div>
-        <div class="pts-row"><div class="pts-badge" style="background:#FDE9C8;color:#633806">5 pts</div><div class="pts-desc">🌟 Mejor jugador joven (menor de 22 años)</div></div>
-        <div class="pts-row"><div class="pts-badge" style="background:#FDE9C8;color:#633806">5 pts</div><div class="pts-desc">🤝 País con Premio Fair Play</div></div>
+    <!-- PASO 2: LLENAR -->
+    <div class="step-panel ${S.tutorialStep===2?'active':''}" id="sp2">
+      <div class="step-card">
+        <div class="step-card-head" style="background:#2d6a1a">
+          <div class="step-num-big">2</div>
+          <div class="step-head-text"><h3>Llena tus pronósticos</h3><p>Hoja "Fase de Grupos" + hoja "Pronósticos Iniciales"</p></div>
+        </div>
+        <div class="step-card-body">
+          <div class="sec">Hoja Fase de Grupos — así se ve:</div>
+          <div class="mock-excel">
+            <div class="mock-row" style="grid-template-columns:30px 60px 80px 1fr 20px 1fr 45px 20px 45px 70px 40px">
+              ${['#','Grupo','Fecha','Local','vs','Visitante','Goles L','—','Goles V','Ganador','Pts'].map(h=>`<div class="mock-cell mock-header">${h}</div>`).join('')}
+            </div>
+            <div class="mock-row" style="grid-template-columns:30px 60px 80px 1fr 20px 1fr 45px 20px 45px 70px 40px">
+              <div class="mock-cell" style="background:#D6E4F7;font-weight:700;font-size:11px">1</div>
+              <div class="mock-cell" style="font-size:11px">G A</div>
+              <div class="mock-cell" style="font-size:11px">11 Jun</div>
+              <div class="mock-cell" style="font-weight:700;font-size:11px;text-align:right">México</div>
+              <div class="mock-cell" style="color:#999;font-size:11px;text-align:center">vs</div>
+              <div class="mock-cell" style="font-weight:700;font-size:11px">Sudáfrica</div>
+              <div class="mock-cell mock-input mock-highlight">2</div>
+              <div class="mock-cell" style="background:#f2f2f2;text-align:center;color:#999">—</div>
+              <div class="mock-cell mock-input mock-highlight">1</div>
+              <div class="mock-cell mock-auto">Local</div>
+              <div class="mock-cell mock-pts"></div>
+            </div>
+            <div class="mock-row" style="grid-template-columns:30px 60px 80px 1fr 20px 1fr 45px 20px 45px 70px 40px">
+              <div class="mock-cell" style="font-size:11px">2</div>
+              <div class="mock-cell" style="font-size:11px">G A</div>
+              <div class="mock-cell" style="font-size:11px">11 Jun</div>
+              <div class="mock-cell" style="font-size:11px;text-align:right">Corea del Sur</div>
+              <div class="mock-cell" style="color:#999;font-size:11px;text-align:center">vs</div>
+              <div class="mock-cell" style="font-size:11px">Rep. Checa</div>
+              <div class="mock-cell mock-input" style="opacity:.4">_</div>
+              <div class="mock-cell" style="background:#f2f2f2;text-align:center;color:#999">—</div>
+              <div class="mock-cell mock-input" style="opacity:.4">_</div>
+              <div class="mock-cell mock-auto"></div>
+              <div class="mock-cell mock-pts"></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0">
+            <div class="alert a-ok" style="margin:0">✅ <strong>Col G</strong> = goles del equipo local (número entero)</div>
+            <div class="alert a-ok" style="margin:0">✅ <strong>Col I</strong> = goles del equipo visitante (número entero)</div>
+          </div>
+          <div class="alert a-info">💡 La columna <strong>Ganador</strong> se llena sola — es automática. Solo escribe los números.</div>
+          <div class="divider"></div>
+          <div class="sec">Hoja Pronósticos Iniciales — también llena:</div>
+          <div style="font-size:13px;color:#444;line-height:1.8">
+            <div>📊 <strong>1° y 2° de cada grupo</strong> — escribe el nombre del equipo que crees que queda primero y segundo en cada uno de los 12 grupos</div>
+            <div>🏅 <strong>Top 4 del mundial</strong> — campeón, subcampeón, 3° y 4° lugar</div>
+            <div>⭐ <strong>Premios individuales</strong> — Balón, Bota, Guante de Oro y Mejor Joven</div>
+            <div>🇲🇽 <strong>México</strong> — goleador y lugar final en el torneo</div>
+            <div>🤝 <strong>Fair Play</strong> — país que ganará el premio</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="pts-card" style="grid-column:1/-1">
-      <div class="pts-card-head" style="background:#a32d2d">🇲🇽 Selección Mexicana</div>
-      <div class="pts-card-body" style="display:grid;grid-template-columns:1fr 1fr">
-        <div class="pts-row" style="border-right:1px solid #f5f5f0">
-          <div class="pts-badge" style="background:#fde8e8;color:#7a1f1f">5 pts</div>
-          <div class="pts-desc">⚽ Goleador de México (jugador que anota más goles)</div>
+    <!-- PASO 3: ENTREGAR -->
+    <div class="step-panel ${S.tutorialStep===3?'active':''}" id="sp3">
+      <div class="step-card">
+        <div class="step-card-head" style="background:#5B2C8C">
+          <div class="step-num-big">3</div>
+          <div class="step-head-text"><h3>Entrega tu Excel a la administradora</h3><p>Por WhatsApp antes del primer partido</p></div>
         </div>
-        <div class="pts-row">
-          <div class="pts-badge" style="background:#fde8e8;color:#7a1f1f">5 pts</div>
-          <div class="pts-desc">🌍 Lugar final de México en el torneo (campeón, top 4, octavos, etc.)</div>
+        <div class="step-card-body">
+          <div style="text-align:center;padding:1.5rem 0">
+            <div style="font-size:64px;margin-bottom:.5rem">📱</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:.3rem">Mándalo por WhatsApp</div>
+            <div style="font-size:13px;color:#666;margin-bottom:1.5rem">Adjunta el archivo .xlsx directamente en el chat</div>
+            <div style="display:inline-block;background:#a32d2d;color:#fff;border-radius:12px;padding:.8rem 1.5rem;font-weight:700;font-size:14px">
+              ⏰ Fecha límite: 11 de junio, antes del mediodía
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="sec">Después de entregar</div>
+          <div class="tl">
+            <div class="tl-item"><div class="tl-dot" style="background:#2d6a1a">✓</div><div class="tl-title">La admin sube tu archivo</div><div class="tl-desc">En la sección Admin, carga tu Excel y tus pronósticos quedan registrados automáticamente.</div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#185FA5">📊</div><div class="tl-title">Sigue tu progreso aquí</div><div class="tl-desc">En la pestaña <strong>Ranking</strong> puedes ver tu posición actualizada después de cada partido.</div></div>
+            <div class="tl-item"><div class="tl-dot" style="background:#F4901A">🏆</div><div class="tl-title">¡Al final se reparten los premios!</div><div class="tl-desc">Los tres primeros lugares de la fase regular se llevan su parte del bote.</div></div>
+          </div>
+          <div class="alert a-warn" style="margin-top:1rem">⚠️ Una vez entregado no puedes cambiar tus pronósticos. ¡Piénsalo bien!</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="card">
-    <div class="sec">Reglas generales</div>
-    <div style="font-size:13px;line-height:1.8;color:#333">
-      <p>📅 <strong>Fecha límite:</strong> todos los pronósticos deben entregarse antes del primer partido del 11 de junio de 2026. Sin excepciones.</p>
-      <p style="margin-top:.5rem">🔒 <strong>Sin cambios:</strong> una vez entregado tu Excel, no se aceptan modificaciones.</p>
-      <p style="margin-top:.5rem">🏆 <strong>Desempate:</strong> en caso de empate en puntos, gana quien tenga más marcadores exactos. Si persiste el empate, se divide el premio.</p>
-      <p style="margin-top:.5rem">💰 <strong>Cuota:</strong> $${S.cfg.cuota} por participante. El ${S.cfg.reg}% del bote se reparte en fase regular y el ${100-S.cfg.reg}% se guarda para la liguilla.</p>
+    <!-- PASO 4: PUNTOS -->
+    <div class="step-panel ${S.tutorialStep===4?'active':''}" id="sp4">
+      <div class="card" style="margin-bottom:.7rem">
+        <div class="sec">Partidos — fase de grupos</div>
+        <div class="pts-showcase">
+          <div class="pts-item" style="background:#d4edda">
+            <div class="pts-circle" style="background:#2d6a1a;color:#fff">${S.cfg.pts_exact}</div>
+            <div class="pts-detail"><h4 style="color:#1a4a0a">Marcador exacto</h4><p style="color:#2d6a1a">Pronosticaste 2-1 y fue 2-1</p></div>
+          </div>
+          <div class="pts-item" style="background:#fff3cd">
+            <div class="pts-circle" style="background:#BA7517;color:#fff">${S.cfg.pts_sign}</div>
+            <div class="pts-detail"><h4 style="color:#633806">Solo ganador / empate</h4><p style="color:#854F0B">Pronosticaste 2-1 y fue 3-1</p></div>
+          </div>
+          <div class="pts-item" style="background:#fde8e8">
+            <div class="pts-circle" style="background:#a32d2d;color:#fff">0</div>
+            <div class="pts-detail"><h4 style="color:#7a1f1f">Resultado incorrecto</h4><p style="color:#a32d2d">Pronosticaste Local y ganó Visitante</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:.7rem">
+        <div class="sec">Clasificación de grupos</div>
+        <div class="pts-showcase">
+          <div class="pts-item" style="background:#E4F7D6">
+            <div class="pts-circle" style="background:#2d6a1a;color:#fff">2</div>
+            <div class="pts-detail"><h4 style="color:#1a4a0a">1er lugar de grupo</h4><p style="color:#2d6a1a">Por cada grupo donde aciertes al primero</p></div>
+          </div>
+          <div class="pts-item" style="background:#E4F7D6">
+            <div class="pts-circle" style="background:#2d6a1a;color:#fff">2</div>
+            <div class="pts-detail"><h4 style="color:#1a4a0a">2do lugar de grupo</h4><p style="color:#2d6a1a">Por cada grupo donde aciertes al segundo</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:.7rem">
+        <div class="sec">Top 4 del mundial</div>
+        <div class="pts-showcase">
+          <div class="pts-item" style="background:#EAD9F7">
+            <div class="pts-circle" style="background:#5B2C8C;color:#fff">5</div>
+            <div class="pts-detail"><h4 style="color:#3d1a6e">País en top 4</h4><p style="color:#5B2C8C">Por cada país que aciertes (en cualquier orden)</p></div>
+          </div>
+          <div class="pts-item" style="background:#EAD9F7">
+            <div class="pts-circle" style="background:#5B2C8C;color:#fff">10</div>
+            <div class="pts-detail"><h4 style="color:#3d1a6e">Campeón acertado</h4><p style="color:#5B2C8C">Si aciertas al campeón del mundial</p></div>
+          </div>
+          <div class="pts-item" style="background:#5B2C8C;border:2px solid #5B2C8C">
+            <div class="pts-circle" style="background:#fff;color:#5B2C8C">25</div>
+            <div class="pts-detail"><h4 style="color:#fff">Top 4 en orden exacto</h4><p style="color:#EAD9F7">¡El premio más grande! 1°, 2°, 3° y 4° en orden perfecto</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec">Puntos extra (5 pts cada uno)</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px">
+          ${[['🏆','Balón de Oro','MVP del torneo'],['👟','Bota de Oro','Goleador del torneo'],
+             ['🧤','Guante de Oro','Mejor portero'],['🌟','Mejor Joven','Menor de 22 años'],
+             ['🤝','Fair Play','País ganador'],['⚽','Goleador México','Jugador de la Selección'],
+             ['🌍','Lugar México','Posición final en torneo']].map(([e,t,d])=>`
+          <div style="background:#FDE9C8;border-radius:8px;padding:.7rem;display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">${e}</span>
+            <div><div style="font-weight:700;font-size:12px;color:#633806">${t}</div><div style="font-size:11px;color:#854F0B">${d}</div></div>
+          </div>`).join('')}
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div style="text-align:center;padding:.5rem 0 1rem">
-    <button class="btn btn-blue" onclick="showTab('pronos')" style="padding:10px 28px;font-size:14px">
-      ¡Entendí, ir a mis pronósticos →
-    </button>
+    <!-- PASO 5: PREMIOS -->
+    <div class="step-panel ${S.tutorialStep===5?'active':''}" id="sp5">
+      <div class="tutorial-hero" style="background:#a32d2d">
+        <div style="font-size:48px;margin-bottom:.5rem">🏆</div>
+        <h2>¡Así se reparte el bote!</h2>
+        <p>$${total.toLocaleString()} en juego entre ${n} participantes</p>
+      </div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem">
+          <div class="prem-box"><div class="prem-amt">$${Math.round(total*S.cfg.reg/100).toLocaleString()}</div><div class="prem-lbl">Fase regular<br><span style="font-size:11px">${S.cfg.reg}% del bote</span></div></div>
+          <div class="prem-box"><div class="prem-amt">$${Math.round(total*(100-S.cfg.reg)/100).toLocaleString()}</div><div class="prem-lbl">Liguilla<br><span style="font-size:11px">${100-S.cfg.reg}% del bote</span></div></div>
+        </div>
+        <div class="sec">Distribución fase regular</div>
+        ${[['🥇','1er lugar',S.cfg.p1],['🥈','2do lugar',S.cfg.p2],['🥉','3er lugar',S.cfg.p3]].map(([e,l,p])=>{
+          const reg=Math.round(total*S.cfg.reg/100);
+          const amt=Math.round(reg*p/100);
+          return`<div class="dist-row"><span>${e} ${l} (${p}%)</span><strong>$${amt.toLocaleString()}</strong></div>`;
+        }).join('')}
+      </div>
+      <div class="card">
+        <div class="sec">Desempate</div>
+        <div style="font-size:13px;color:#444;line-height:1.8">
+          <p>Si dos personas tienen los mismos puntos, gana quien tenga <strong>más marcadores exactos</strong>.</p>
+          <p>Si el empate persiste, el premio se <strong>divide en partes iguales</strong>.</p>
+        </div>
+      </div>
+      <div style="text-align:center;padding:.5rem 0 1rem">
+        <button class="btn btn-green" onclick="showTab('pronos')" style="padding:10px 28px;font-size:14px">¡Entendí, ver mis pronósticos →</button>
+      </div>
+    </div>
+
+    <!-- NAV BUTTONS -->
+    <div class="step-nav-btns">
+      <button class="btn" onclick="goStep(${S.tutorialStep-1})" ${S.tutorialStep===0?'style="visibility:hidden"':''}>← Anterior</button>
+      <span class="step-counter">${S.tutorialStep+1} / ${STEPS.length}</span>
+      <button class="btn btn-blue" onclick="goStep(${S.tutorialStep+1})" ${S.tutorialStep===STEPS.length-1?'style="visibility:hidden"':''}>Siguiente →</button>
+    </div>
   </div>`;
+}
+
+function goStep(i){
+  if(i<0||i>=STEPS.length)return;
+  S.tutorialStep=i;
+  renderTutorial();
+  document.querySelector('.tutorial-wrap').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ── PRONÓSTICOS ───────────────────────────────────
@@ -447,23 +637,50 @@ function renderPronos(){
   const predCount=MATCHES.filter(m=>parseScore(preds[m.id])).length;
   const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
 
-  let h=`<div class="alert a-info">Pronósticos de: <strong>${S.active}</strong> · Escribe el marcador exacto (ej: <strong>2</strong> y <strong>1</strong>)</div>`;
+  let h=`<div class="alert a-info">Pronósticos de: <strong>${S.active}</strong></div>`;
   h+=`<div class="chip-wrap">${S.participants.map(p=>`<span class="chip ${p===S.active?'active':''}" onclick="S.active='${p}';save();renderPronos()">${p}</span>`).join('')}</div>`;
   h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/48*100)}%"></div></div>
-      <div class="prog-lbl"><span>${predCount}/48 pronósticos</span><span>${resCount} resultados cargados</span></div>`;
+      <div class="prog-lbl"><span>${predCount}/48 marcadores</span><span>${resCount} resultados cargados</span></div>`;
 
+  // Clasificación de grupos
+  h+=`<div class="card">
+    <div class="sec">1° y 2° lugar por grupo (2 pts cada uno)</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">`;
+  Object.keys(GROUPS_DATA).forEach(g=>{
+    const gp=S.groupPreds[S.active]||{};
+    const col=GROUP_COLORS[g];
+    h+=`<div style="border:1px solid #e0e0d8;border-radius:8px;overflow:hidden">
+      <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px">Grupo ${g} — ${GROUPS_DATA[g].filter(t=>t!=='Por definir').join(', ')||'Por definir'}</div>
+      <div style="padding:6px 10px">
+        <div class="group-pred-row">
+          <div class="group-pred-lbl">🥇 1er lugar</div>
+          <input class="group-pred-input" placeholder="Equipo..." value="${(gp[g+'_1'])||''}" onchange="setGroupPred('${g}','1',this.value)">
+          <div class="group-pred-pts">2 pts</div>
+        </div>
+        <div class="group-pred-row">
+          <div class="group-pred-lbl">🥈 2do lugar</div>
+          <input class="group-pred-input" placeholder="Equipo..." value="${(gp[g+'_2'])||''}" onchange="setGroupPred('${g}','2',this.value)">
+          <div class="group-pred-pts">2 pts</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  h+=`</div></div>`;
+
+  // Partidos por grupo
   const groups=[...new Set(MATCHES.map(m=>m.g))];
   groups.forEach(g=>{
-    h+=`<div class="card"><div class="sec">Grupo ${g}</div>`;
+    const col=GROUP_COLORS[g];
+    h+=`<div class="card"><div class="sec" style="color:${col}">Grupo ${g} — Marcadores</div>`;
     MATCHES.filter(m=>m.g===g).forEach(m=>{
       const pr=parseScore(preds[m.id]),res=parseScore(S.results[m.id]);
       let wc='score-wrap',ptTag='';
       if(pr&&!res) wc+=' filled';
       else if(pr&&res){
         const ex=pr.h===res.h&&pr.a===res.a,sg=sign(pr)===sign(res);
-        if(ex){wc+=' correct';ptTag=`<span class="pts-tag tag-exact">+${S.cfg.pts_exact} exacto</span>`;}
-        else if(sg){wc+=' partial';ptTag=`<span class="pts-tag tag-sign">+${S.cfg.pts_sign} ganador</span>`;}
-        else{wc+=' wrong';ptTag=`<span class="pts-tag tag-wrong">0 pts</span>`;}
+        if(ex){wc+=' correct';ptTag=`<span class="pts-tag tag-exact">+${S.cfg.pts_exact}</span>`;}
+        else if(sg){wc+=' partial';ptTag=`<span class="pts-tag tag-sign">+${S.cfg.pts_sign}</span>`;}
+        else{wc+=' wrong';ptTag=`<span class="pts-tag tag-wrong">0</span>`;}
       }
       h+=`<div class="mrow">
         <div class="th"><div class="tname">${m.h}</div></div>
@@ -475,7 +692,7 @@ function renderPronos(){
             <input class="score-in" type="number" min="0" max="20" value="${pr?pr.a:''}" placeholder="0" id="a_${m.id}" onchange="setPred('${m.id}')">
           </div>
           ${ptTag}
-          ${res?`<div style="margin-top:2px;font-size:11px;color:#666">Real: <strong style="color:#185FA5">${res.h}-${res.a}</strong> <span class="res-lbl">${sign(res)==='home'?'Local':sign(res)==='away'?'Visitante':'Empate'}</span></div>`:''}
+          ${res?`<div style="margin-top:2px;font-size:10px;color:#666">Real: <strong style="color:#185FA5">${res.h}-${res.a}</strong> <span class="res-lbl">${sign(res)==='home'?'Local':sign(res)==='away'?'Visitante':'Empate'}</span></div>`:''}
         </div>
         <div class="ta"><div class="tname">${m.a}</div></div>
       </div>`;
@@ -492,6 +709,34 @@ function setPred(mid){
   if(isNaN(h)||isNaN(a))return;
   if(!S.predictions[S.active])S.predictions[S.active]={};
   S.predictions[S.active][mid]=`${h}-${a}`;save();
+}
+
+function setGroupPred(g,pos,val){
+  if(!S.groupPreds[S.active])S.groupPreds[S.active]={};
+  S.groupPreds[S.active][g+'_'+pos]=val.trim();save();
+}
+
+// ── GRUPOS ────────────────────────────────────────
+function renderGrupos(){
+  const el=document.getElementById('t-grupos');
+  let h=`<div class="alert a-info">12 grupos del Mundial 2026 · Los grupos I-L se confirmarán al completarse las clasificatorias</div>`;
+  h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">`;
+  Object.entries(GROUPS_DATA).forEach(([g,teams])=>{
+    const col=GROUP_COLORS[g];
+    const pending=teams.every(t=>t==='Por definir');
+    h+=`<div class="card" style="padding:0;overflow:hidden;margin-bottom:0">
+      <div style="background:${col};color:#fff;padding:.6rem 1rem;font-size:14px;font-weight:700">GRUPO ${g}</div>
+      <div>
+        ${teams.map((t,i)=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:${i<3?'1px solid #f5f5f0':'none'};${pending?'opacity:.5':''}">
+          <div style="width:22px;height:22px;border-radius:50%;background:${col};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+          <div style="font-size:13px;font-weight:${i===0?'700':'500'}">${t}</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  });
+  h+=`</div>`;
+  el.innerHTML=h;
 }
 
 // ── RANKING ───────────────────────────────────────
@@ -522,7 +767,6 @@ function renderPremios(){
   const a1=Math.round(reg*S.cfg.p1/100),a2=Math.round(reg*S.cfg.p2/100),a3=reg-a1-a2;
   const rk=getRanking();
   const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
-
   let h=`<div class="card">
     <div style="font-size:30px;font-weight:700;color:#185FA5">$${total.toLocaleString()}</div>
     <div style="font-size:13px;color:#666;margin-top:4px">${n} participantes × $${S.cfg.cuota.toLocaleString()}</div>
@@ -532,17 +776,16 @@ function renderPremios(){
     </div>
   </div>
   <div class="card">
-    <div class="sec">Distribución fase regular — $${reg.toLocaleString()}</div>
+    <div class="sec">Distribución fase regular</div>
     <div class="dist-row"><span>🥇 1er lugar (${S.cfg.p1}%)</span><strong>$${a1.toLocaleString()}</strong></div>
     <div class="dist-row"><span>🥈 2do lugar (${S.cfg.p2}%)</span><strong>$${a2.toLocaleString()}</strong></div>
     <div class="dist-row"><span>🥉 3er lugar (${S.cfg.p3}%)</span><strong>$${a3.toLocaleString()}</strong></div>
   </div>`;
-
   if(resCount>0&&rk.length){
     const prizes=[a1,a2,a3];
     h+=`<div class="card"><div class="sec">Líderes actuales</div>`;
     rk.slice(0,3).forEach((p,i)=>{
-      h+=`<div class="dist-row"><span>${['🥇','🥈','🥉'][i]} <strong>${p.name}</strong> — ${p.pts} pts (${p.exact} exactos)</span><strong style="color:#185FA5">$${prizes[i].toLocaleString()}</strong></div>`;
+      h+=`<div class="dist-row"><span>${['🥇','🥈','🥉'][i]} <strong>${p.name}</strong> — ${p.pts} pts</span><strong style="color:#185FA5">$${prizes[i].toLocaleString()}</strong></div>`;
     });
     h+=`</div>`;
   }
@@ -554,29 +797,25 @@ function renderAdmin(){
   const el=document.getElementById('t-admin');
   const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
   const sum=S.cfg.p1+S.cfg.p2+S.cfg.p3,sumOk=sum===100;
-
   let h=`<div class="session-bar">
     <div class="alert a-ok" style="margin:0;flex:1">${resCount}/48 resultados registrados</div>
     <span class="badge-admin" style="margin-left:10px" onclick="lockAdmin()">🔓 Cerrar sesión</span>
   </div>`;
-
   h+=`<div class="card">
     <div class="sec">Cargar Excel de participante</div>
-    <div class="alert a-info">La plantilla detecta el nombre de celda C3. Recibe el .xlsx de cada participante y súbelo aquí.</div>
+    <div class="alert a-info">Detecta nombre de celda C3 en hoja "Fase de Grupos". Goles col G (local) e I (visitante).</div>
     <div class="upload-zone" id="dz" onclick="document.getElementById('xlin').click()"
       ondragover="event.preventDefault();document.getElementById('dz').classList.add('drag')"
       ondragleave="document.getElementById('dz').classList.remove('drag')"
       ondrop="handleDrop(event)">
       <div style="font-size:28px;margin-bottom:6px">📂</div>
       <div style="font-size:14px;color:#666">Arrastra aquí o <strong style="color:#185FA5">haz clic para buscar</strong></div>
-      <div style="font-size:11px;color:#999;margin-top:4px">.xlsx · Nombre en C3 · Goles en col G e I</div>
     </div>
     <input type="file" id="xlin" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0]);this.value=''">
     <div id="upload-res"></div>
   </div>`;
-
   h+=`<div class="card">
-    <div class="sec">Resultado oficial de partido</div>
+    <div class="sec">Resultado oficial</div>
     <select class="adm-sel" id="res-sel" onchange="fillResult()">
       <option value="">— Selecciona partido —</option>
       ${MATCHES.map((m,i)=>{const sc=parseScore(S.results[m.id]);return`<option value="${m.id}">${sc?'✓ ':'   '}${i+1}. [G${m.g}] ${m.h} vs ${m.a} (${m.d})</option>`;}).join('')}
@@ -586,46 +825,40 @@ function renderAdmin(){
       <span style="font-size:16px;font-weight:700;color:#999">-</span>
       <input class="radm" type="number" min="0" max="20" id="res-a" placeholder="0">
       <button class="btn btn-green" onclick="saveResult()">Guardar</button>
-      <button class="btn btn-red"   onclick="deleteResult()">Borrar</button>
+      <button class="btn btn-red" onclick="deleteResult()">Borrar</button>
     </div>
     <div id="res-fb"></div>
   </div>`;
-
   h+=`<div class="card">
     <div class="sec">Participantes (${S.participants.length})</div>
     <div class="chip-wrap">${S.participants.map(p=>`<span class="chip">${p} <span onclick="removePart('${p}')" style="cursor:pointer;color:#a32d2d;font-weight:700;margin-left:2px">×</span></span>`).join('')}</div>
     <div style="display:flex;gap:6px;margin-top:6px">
-      <input class="adm-inp" id="np" placeholder="Nombre del participante" style="flex:1" onkeydown="if(event.key==='Enter')addPart()">
+      <input class="adm-inp" id="np" placeholder="Nombre" style="flex:1" onkeydown="if(event.key==='Enter')addPart()">
       <button class="btn btn-blue" onclick="addPart()">+ Agregar</button>
     </div>
   </div>`;
-
   h+=`<div class="card">
-    <div class="sec">Puntos (fase de grupos)</div>
+    <div class="sec">Puntos y premios</div>
     <div class="irow"><label>Pts marcador exacto</label><input class="adm-inp" type="number" id="c-pts-e" value="${S.cfg.pts_exact}" style="width:70px"></div>
     <div class="irow"><label>Pts solo ganador/E</label><input class="adm-inp" type="number" id="c-pts-s" value="${S.cfg.pts_sign}" style="width:70px"></div>
-    <div class="sec">Cuota y bote</div>
     <div class="irow"><label>Cuota por persona ($)</label><input class="adm-inp" type="number" id="c-cuota" value="${S.cfg.cuota}" style="width:90px"></div>
     <div class="pct-row"><label>Fase regular</label><input type="range" id="c-reg" min="0" max="100" step="5" value="${S.cfg.reg}" oninput="document.getElementById('v-reg').textContent=this.value+'%'"><span class="pct-val" id="v-reg">${S.cfg.reg}%</span></div>
-    <div class="sec">Distribución 1°, 2°, 3° lugar (deben sumar 100%)</div>
+    <div class="sec">Distribución 1°, 2°, 3° (deben sumar 100%)</div>
     <div class="pct-row"><label>🥇 1er lugar</label><input type="range" id="c-p1" min="0" max="100" step="5" value="${S.cfg.p1}" oninput="recalcPcts()"><span class="pct-val" id="v-p1">${S.cfg.p1}%</span></div>
     <div class="pct-row"><label>🥈 2do lugar</label><input type="range" id="c-p2" min="0" max="100" step="5" value="${S.cfg.p2}" oninput="recalcPcts()"><span class="pct-val" id="v-p2">${S.cfg.p2}%</span></div>
     <div class="pct-row"><label>🥉 3er lugar</label><input type="range" id="c-p3" min="0" max="100" step="5" value="${S.cfg.p3}" oninput="recalcPcts()"><span class="pct-val" id="v-p3">${S.cfg.p3}%</span></div>
-    <div style="margin-bottom:.75rem">Total: <span class="pct-total ${sumOk?'pct-ok':'pct-bad'}" id="pct-sum">${sum}%</span>${!sumOk?`<span style="font-size:12px;color:#a32d2d;margin-left:8px">⚠️ Debe ser 100%</span>`:''}</div>
+    <div style="margin-bottom:.7rem">Total: <span class="pct-total ${sumOk?'pct-ok':'pct-bad'}" id="pct-sum">${sum}%</span></div>
     <div class="divider"></div>
-    <button class="btn btn-blue" onclick="saveCfg()">💾 Guardar configuración</button>
+    <button class="btn btn-blue" onclick="saveCfg()">💾 Guardar</button>
   </div>`;
-
   h+=`<div class="card">
     <div class="sec">Cambiar contraseña</div>
-    <div class="alert a-warn" style="font-size:12px">Si la olvidas necesitarás limpiar el almacenamiento del navegador.</div>
     <div style="display:flex;gap:8px">
       <input class="adm-inp" type="password" id="new-pw" placeholder="Nueva contraseña (mín. 4 caracteres)" style="flex:1">
       <button class="btn btn-gray" onclick="changePw()">Cambiar</button>
     </div>
     <div id="pw-chg-fb" style="margin-top:6px;font-size:12px"></div>
   </div>`;
-
   el.innerHTML=h;
   document.getElementById('res-sel').addEventListener('change',fillResult);
 }
@@ -641,14 +874,12 @@ function recalcPcts(){
   const el=document.getElementById('pct-sum');
   el.textContent=sum+'%';el.className='pct-total '+(sum===100?'pct-ok':'pct-bad');
 }
-
 function fillResult(){
   const mid=document.getElementById('res-sel').value;
   const sc=parseScore(S.results[mid]);
   document.getElementById('res-h').value=sc?sc.h:'';
   document.getElementById('res-a').value=sc?sc.a:'';
 }
-
 function saveResult(){
   const mid=document.getElementById('res-sel').value;if(!mid)return;
   const h=document.getElementById('res-h').value,a=document.getElementById('res-a').value;
@@ -658,24 +889,20 @@ function saveResult(){
   document.getElementById('res-fb').innerHTML=`<div class="alert a-ok">✓ ${m.h} ${h}-${a} ${m.a} guardado</div>`;
   renderAdmin();
 }
-
 function deleteResult(){
   const mid=document.getElementById('res-sel').value;if(!mid)return;
   delete S.results[mid];save();renderAdmin();
 }
-
 function addPart(){
   const v=document.getElementById('np').value.trim();
   if(!v||S.participants.includes(v))return;
   S.participants.push(v);save();renderAdmin();
 }
-
 function removePart(n){
   S.participants=S.participants.filter(p=>p!==n);
   if(S.active===n)S.active=S.participants[0]||'';
   save();renderAdmin();
 }
-
 function saveCfg(){
   const p1=parseInt(document.getElementById('c-p1').value)||0;
   const p2=parseInt(document.getElementById('c-p2').value)||0;
@@ -688,7 +915,6 @@ function saveCfg(){
   S.cfg.p1=p1;S.cfg.p2=p2;S.cfg.p3=p3;
   save();alert('✅ Configuración guardada');renderAdmin();
 }
-
 async function changePw(){
   const val=document.getElementById('new-pw').value;
   const fb=document.getElementById('pw-chg-fb');
@@ -697,12 +923,10 @@ async function changePw(){
   document.getElementById('new-pw').value='';
   fb.innerHTML=`<span style="color:#1a4a0a">✅ Contraseña cambiada</span>`;
 }
-
 function handleDrop(e){
   e.preventDefault();document.getElementById('dz').classList.remove('drag');
   if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);
 }
-
 function handleFile(file){
   if(!file)return;
   const el=document.getElementById('upload-res');
@@ -738,7 +962,7 @@ function handleFile(file){
   reader.readAsArrayBuffer(file);
 }
 
-renderReglas();
+renderTutorial();
 </script>
 </body>
 </html>
