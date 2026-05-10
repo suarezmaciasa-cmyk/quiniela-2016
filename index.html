@@ -257,24 +257,24 @@ const MATCHES=[
 ];
 
 const GROUPS_DATA={
-  A:['México','Sudáfrica','Corea del Sur','Rep. Checa'],
-  B:['España','Marruecos','Portugal','Argentina'],
-  C:['Francia','Brasil','Bélgica','Japón'],
-  D:['Alemania','Países Bajos','Inglaterra','Estados Unidos'],
-  E:['Italia','Uruguay','Ecuador','Senegal'],
-  F:['Colombia','Polonia','Camerún','Turquía'],
-  G:['Croacia','Arabia Saudita','Australia','Ghana'],
-  H:['Serbia','Irán','Suiza','Dinamarca'],
-  I:['Por definir','Por definir','Por definir','Por definir'],
-  J:['Por definir','Por definir','Por definir','Por definir'],
-  K:['Por definir','Por definir','Por definir','Por definir'],
-  L:['Por definir','Por definir','Por definir','Por definir'],
+  A:['México','Corea del Sur','Sudáfrica','Rep. Checa'],
+  B:['Canadá','Suiza','Qatar','Bosnia y Herzegovina'],
+  C:['Brasil','Marruecos','Escocia','Haití'],
+  D:['Estados Unidos','Australia','Paraguay','Turquía'],
+  E:['Alemania','Ecuador','Costa de Marfil','Curazao'],
+  F:['Países Bajos','Japón','Suecia','Túnez'],
+  G:['Bélgica','Egipto','Irán','Nueva Zelanda'],
+  H:['España','Uruguay','Arabia Saudita','Cabo Verde'],
+  I:['Francia','Senegal','Noruega','Irak'],
+  J:['Argentina','Argelia','Austria','Jordania'],
+  K:['Portugal','Colombia','Uzbekistán','R.D. del Congo'],
+  L:['Inglaterra','Croacia','Ghana','Panamá'],
 };
 
 const GROUP_COLORS={
   A:'#1A5FA8',B:'#2D6A1A',C:'#5B2C8C',D:'#F4901A',
-  E:'#A32D2D',F:'#4A4A4A',G:'#0C6B6B',H:'#7A4A00',
-  I:'#4A4A4A',J:'#4A4A4A',K:'#4A4A4A',L:'#4A4A4A'
+  E:'#A32D2D',F:'#0C6B6B',G:'#7A4A00',H:'#8B1A1A',
+  I:'#1A3A7A',J:'#3A7A1A',K:'#6B0C6B',L:'#4A4A00'
 };
 
 const DEF={cuota:200,reg:40,p1:50,p2:30,p3:20,pts_exact:3,pts_sign:1,pw_hash:'',pw_set:false};
@@ -935,6 +935,8 @@ function handleFile(file){
   reader.onload=function(e){
     try{
       const wb=XLSX.read(e.target.result,{type:'array'});
+
+      // ── Hoja 1: Fase de Grupos ───────────────────────
       const ws=wb.Sheets['Fase de Grupos'];
       if(!ws){el.innerHTML=`<div class="alert a-err">No se encontró la hoja "Fase de Grupos".</div>`;return;}
       const nc=ws['C3'];
@@ -953,9 +955,31 @@ function handleFile(file){
           else bad++;
         }else if(hv!==''||av!=='')bad++;
       });
+
+      // ── Hoja 2: Pronósticos Iniciales (1°/2° de grupo) ──
+      // Layout: grupos A-L en pares de filas
+      // Encabezados en fila 7 (r=6), datos empiezan en fila 8 (r=7)
+      // Col B (idx 1) = pronóstico 1°, Col E (idx 4) = pronóstico 2°
+      // Cada grupo ocupa 1 fila; orden A,B,C,...L = filas 8..19
+      const ws2=wb.Sheets['Pronósticos Iniciales'];
+      if(!S.groupPreds[nombre])S.groupPreds[nombre]={};
+      let gpCount=0;
+      if(ws2){
+        const groups=Object.keys(GROUPS_DATA); // A..L
+        groups.forEach((g,gi)=>{
+          const dataRow=7+gi; // row index 0-based: row 8 = index 7
+          const c1=ws2[XLSX.utils.encode_cell({r:dataRow,c:1})]; // col B = 1° lugar
+          const c2=ws2[XLSX.utils.encode_cell({r:dataRow,c:4})]; // col E = 2° lugar
+          const v1=c1&&c1.v!==undefined?String(c1.v).trim():'';
+          const v2=c2&&c2.v!==undefined?String(c2.v).trim():'';
+          if(v1&&!v1.includes('←')){S.groupPreds[nombre][g+'_1']=v1;gpCount++;}
+          if(v2&&!v2.includes('←')){S.groupPreds[nombre][g+'_2']=v2;gpCount++;}
+        });
+      }
+
       if(!S.participants.includes(nombre))S.participants.push(nombre);
       S.active=nombre;save();
-      el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} pronósticos importados${bad?` · ${bad} con formato inválido`:''}.</div>`;
+      el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} marcadores importados${gpCount?` · ${gpCount} pronósticos de grupos`:''}${bad?` · ${bad} inválidos`:''}.</div>`;
       renderAdmin();
     }catch(err){el.innerHTML=`<div class="alert a-err">Error: ${err.message}</div>`;}
   };
