@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiniela Mundial 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #f5f5f0; color: #1a1a1a; min-height: 100vh; }
+.app { max-width: 920px; margin: 0 auto; padding: 1rem; }
+.header { text-align: center; padding: 1.5rem 0 1rem; }
+.header h1 { font-size: 24px; font-weight: 600; }
+.header p  { font-size: 13px; color: #666; margin-top: 4px; }
+.tabs { display: flex; gap: 4px; margin: 0.75rem 0; background: #fff; border: 1px solid #e0e0d8; border-radius: 12px; padding: 4px; }
+.tab { flex: 1; padding: 8px 4px; border: none; background: transparent; border-radius: 8px; cursor: pointer; font-size: 13px; color: #666; font-family: inherit; position: relative; }
+.tab.active { background: #f0f0e8; color: #1a1a1a; font-weight: 600; }
+.tab-admin-btn::after { content: ' 🔒'; font-size: 10px; }
+.tab-admin-btn.unlocked::after { content: ' 🔓'; }
+.card { background: #fff; border: 1px solid #e0e0d8; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+.sec { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 1rem 0 0.5rem; }
+.sec:first-child { margin-top: 0; }
+.mrow { display: grid; grid-template-columns: 1fr 140px 1fr; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0e8; }
+.mrow:last-child { border-bottom: none; }
+.tname { font-size: 13px; font-weight: 600; }
+.th { text-align: right; } .ta { text-align: left; }
+.mcenter { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.mdate { font-size: 10px; color: #999; }
+.score-wrap { display: flex; align-items: center; gap: 4px; }
+.score-in { width: 34px; height: 32px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-size: 14px; font-weight: 600; font-family: inherit; background: #fff; padding: 0; }
+.score-dash { font-size: 16px; font-weight: 600; color: #999; }
+.score-wrap.filled  .score-in { background: #dbeeff; border-color: #185FA5; color: #0c447c; }
+.score-wrap.correct .score-in { background: #d4edda; border-color: #2d6a1a; color: #1a4a0a; }
+.score-wrap.wrong   .score-in { background: #fde8e8; border-color: #a32d2d; color: #7a1f1f; }
+.score-wrap.partial .score-in { background: #fff3cd; border-color: #BA7517; color: #633806; }
+.pts-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.tag-exact { background: #d4edda; color: #1a4a0a; }
+.tag-sign  { background: #fff3cd; color: #633806; }
+.tag-wrong { background: #fde8e8; color: #7a1f1f; }
+.res-lbl { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: #dbeeff; color: #0c447c; }
+.chip-wrap { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; background: #f0f0e8; border-radius: 20px; font-size: 12px; cursor: pointer; border: 1px solid transparent; }
+.chip.active { border-color: #185FA5; background: #dbeeff; color: #0c447c; }
+.prog-bar { height: 4px; background: #f0f0e8; border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; background: #185FA5; border-radius: 2px; }
+.prog-lbl { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-top: 3px; margin-bottom: 0.75rem; }
+.rnk-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0e8; }
+.rnk-item:last-child { border-bottom: none; }
+.rnk-pos { font-size: 18px; font-weight: 600; min-width: 28px; color: #999; }
+.p1{color:#BA7517} .p2{color:#5F5E5A} .p3{color:#854F0B}
+.rnk-name { flex: 1; font-size: 14px; font-weight: 600; }
+.rnk-bar-w { width: 80px; height: 4px; background: #f0f0e8; border-radius: 2px; overflow: hidden; }
+.rnk-bar { height: 100%; background: #185FA5; border-radius: 2px; }
+.rnk-pts { font-size: 12px; color: #666; text-align: right; min-width: 65px; }
+.rnk-pts strong { color: #1a1a1a; font-size: 18px; font-weight: 600; display: block; }
+.prem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0.75rem; }
+.prem-box { background: #f0f0e8; border-radius: 8px; padding: 1rem; text-align: center; }
+.prem-amt { font-size: 24px; font-weight: 600; color: #185FA5; }
+.prem-lbl { font-size: 12px; color: #666; margin-top: 4px; }
+.dist-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #f0f0e8; font-size: 13px; }
+.dist-row:last-child { border-bottom: none; }
+.adm-sel { width: 100%; padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 13px; background: #fff; margin-bottom: 8px; }
+.adm-inp { padding: 7px 10px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 13px; background: #fff; }
+.btn { padding: 8px 16px; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; background: #fff; }
+.btn-blue  { background: #185FA5; color: #fff; border-color: #185FA5; }
+.btn-green { background: #2d6a1a; color: #fff; border-color: #2d6a1a; }
+.btn-red   { background: #a32d2d; color: #fff; border-color: #a32d2d; }
+.btn-gray  { background: #555; color: #fff; border-color: #555; }
+.radm { width: 38px; height: 34px; border: 1px solid #ccc; border-radius: 6px; text-align: center; font-size: 14px; font-weight: 600; font-family: inherit; background: #f8f8f4; }
+.upload-zone { border: 2px dashed #ccc; border-radius: 10px; padding: 1.5rem; text-align: center; cursor: pointer; }
+.upload-zone:hover,.upload-zone.drag { border-color: #185FA5; background: #f0f7ff; }
+.alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 0.75rem; }
+.a-info { background: #dbeeff; color: #0c447c; }
+.a-ok   { background: #d4edda; color: #1a4a0a; }
+.a-warn { background: #fff3cd; color: #633806; }
+.a-err  { background: #fde8e8; color: #7a1f1f; }
+.irow { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.irow label { font-size: 13px; color: #666; min-width: 130px; }
+.empty { text-align: center; padding: 2rem; color: #888; font-size: 14px; }
+.divider { border: none; border-top: 1px solid #f0f0e8; margin: 0.75rem 0; }
+.session-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.badge-admin { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 12px; background: #d4edda; color: #1a4a0a; border-radius: 20px; font-weight: 600; cursor: pointer; border: 1px solid #a3d5a0; }
+
+/* MODAL */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 999; }
+.modal-box { background: #fff; border-radius: 16px; padding: 2rem; width: 340px; max-width: 92vw; text-align: center; }
+.modal-box h2 { font-size: 18px; font-weight: 600; margin-bottom: 0.4rem; }
+.modal-box p  { font-size: 13px; color: #666; margin-bottom: 1.25rem; line-height: 1.5; }
+.modal-icon { font-size: 42px; margin-bottom: 0.75rem; }
+.modal-box input { width: 100%; padding: 11px 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; text-align: center; letter-spacing: 4px; font-family: inherit; margin-bottom: 6px; }
+.modal-box input:focus { outline: none; border-color: #185FA5; }
+.modal-err { font-size: 12px; color: #a32d2d; min-height: 18px; margin-bottom: 8px; }
+.modal-btns { display: flex; gap: 8px; }
+
+/* SLIDERS */
+.pct-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pct-row label { font-size: 13px; color: #444; min-width: 90px; }
+.pct-row input[type=range] { flex: 1; accent-color: #185FA5; }
+.pct-val { font-size: 14px; font-weight: 600; min-width: 40px; text-align: right; color: #185FA5; }
+.pct-total { display: inline-block; font-size: 13px; font-weight: 600; padding: 5px 12px; border-radius: 6px; margin-top: 2px; }
+.pct-ok  { background: #d4edda; color: #1a4a0a; }
+.pct-bad { background: #fde8e8; color: #7a1f1f; }
+
+@media (max-width: 560px) {
+  .prem-grid { grid-template-columns: 1fr; }
+  .mrow { grid-template-columns: 1fr 120px 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>⚽ Quiniela Mundial 2026</h1>
+    <p>Fase de grupos · 48 partidos · Marcador exacto</p>
+  </div>
+  <div class="tabs">
+    <button class="tab active"      onclick="showTab('pronos')">Pronósticos</button>
+    <button class="tab"             onclick="showTab('ranking')">Ranking</button>
+    <button class="tab"             onclick="showTab('premios')">Premios</button>
+    <button class="tab tab-admin-btn" id="tab-admin-btn" onclick="tryAdmin()">Admin</button>
+  </div>
+  <div id="t-pronos"></div>
+  <div id="t-ranking" style="display:none"></div>
+  <div id="t-premios" style="display:none"></div>
+  <div id="t-admin"   style="display:none"></div>
+</div>
+
+<div class="modal-bg" id="pw-modal" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-icon" id="modal-icon">🔐</div>
+    <h2 id="modal-title">Área de administración</h2>
+    <p id="modal-desc">Solo la administradora puede acceder aquí.</p>
+    <input type="password" id="pw-in" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPw()">
+    <div class="modal-err" id="pw-err"></div>
+    <div class="modal-btns">
+      <button class="btn" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-blue" style="flex:1" onclick="checkPw()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MATCHES = [
+  {id:'m01',g:'A',d:'11 Jun',h:'México',a:'Sudáfrica'},
+  {id:'m02',g:'A',d:'11 Jun',h:'Corea del Sur',a:'Rep. Checa'},
+  {id:'m03',g:'B',d:'13 Jun',h:'España',a:'Marruecos'},
+  {id:'m04',g:'B',d:'13 Jun',h:'Portugal',a:'Argentina'},
+  {id:'m05',g:'C',d:'14 Jun',h:'Francia',a:'Brasil'},
+  {id:'m06',g:'C',d:'14 Jun',h:'Bélgica',a:'Japón'},
+  {id:'m07',g:'D',d:'15 Jun',h:'Alemania',a:'Países Bajos'},
+  {id:'m08',g:'D',d:'15 Jun',h:'Inglaterra',a:'Estados Unidos'},
+  {id:'m09',g:'E',d:'16 Jun',h:'Italia',a:'Uruguay'},
+  {id:'m10',g:'E',d:'16 Jun',h:'Ecuador',a:'Senegal'},
+  {id:'m11',g:'F',d:'17 Jun',h:'Colombia',a:'Polonia'},
+  {id:'m12',g:'F',d:'17 Jun',h:'Camerún',a:'Turquía'},
+  {id:'m13',g:'A',d:'18 Jun',h:'México',a:'Corea del Sur'},
+  {id:'m14',g:'A',d:'18 Jun',h:'Rep. Checa',a:'Sudáfrica'},
+  {id:'m15',g:'B',d:'19 Jun',h:'Portugal',a:'Marruecos'},
+  {id:'m16',g:'B',d:'19 Jun',h:'Argentina',a:'España'},
+  {id:'m17',g:'C',d:'20 Jun',h:'Brasil',a:'Bélgica'},
+  {id:'m18',g:'C',d:'20 Jun',h:'Japón',a:'Francia'},
+  {id:'m19',g:'D',d:'21 Jun',h:'Países Bajos',a:'Inglaterra'},
+  {id:'m20',g:'D',d:'21 Jun',h:'Estados Unidos',a:'Alemania'},
+  {id:'m21',g:'E',d:'22 Jun',h:'Uruguay',a:'Ecuador'},
+  {id:'m22',g:'E',d:'22 Jun',h:'Senegal',a:'Italia'},
+  {id:'m23',g:'F',d:'23 Jun',h:'Polonia',a:'Camerún'},
+  {id:'m24',g:'F',d:'23 Jun',h:'Turquía',a:'Colombia'},
+  {id:'m25',g:'A',d:'25 Jun',h:'México',a:'Rep. Checa'},
+  {id:'m26',g:'A',d:'25 Jun',h:'Sudáfrica',a:'Corea del Sur'},
+  {id:'m27',g:'B',d:'26 Jun',h:'España',a:'Portugal'},
+  {id:'m28',g:'B',d:'26 Jun',h:'Marruecos',a:'Argentina'},
+  {id:'m29',g:'C',d:'27 Jun',h:'Francia',a:'Japón'},
+  {id:'m30',g:'C',d:'27 Jun',h:'Brasil',a:'Bélgica'},
+  {id:'m31',g:'D',d:'28 Jun',h:'Alemania',a:'Estados Unidos'},
+  {id:'m32',g:'D',d:'28 Jun',h:'Países Bajos',a:'Inglaterra'},
+  {id:'m33',g:'E',d:'29 Jun',h:'Italia',a:'Ecuador'},
+  {id:'m34',g:'E',d:'29 Jun',h:'Uruguay',a:'Senegal'},
+  {id:'m35',g:'F',d:'30 Jun',h:'Colombia',a:'Turquía'},
+  {id:'m36',g:'F',d:'30 Jun',h:'Polonia',a:'Camerún'},
+  {id:'m37',g:'G',d:'1 Jul',h:'Croacia',a:'Arabia Saudita'},
+  {id:'m38',g:'G',d:'1 Jul',h:'Australia',a:'Ghana'},
+  {id:'m39',g:'G',d:'3 Jul',h:'Croacia',a:'Australia'},
+  {id:'m40',g:'G',d:'3 Jul',h:'Arabia Saudita',a:'Ghana'},
+  {id:'m41',g:'G',d:'5 Jul',h:'Croacia',a:'Ghana'},
+  {id:'m42',g:'G',d:'5 Jul',h:'Arabia Saudita',a:'Australia'},
+  {id:'m43',g:'H',d:'2 Jul',h:'Serbia',a:'Irán'},
+  {id:'m44',g:'H',d:'2 Jul',h:'Suiza',a:'Dinamarca'},
+  {id:'m45',g:'H',d:'4 Jul',h:'Serbia',a:'Suiza'},
+  {id:'m46',g:'H',d:'4 Jul',h:'Irán',a:'Dinamarca'},
+  {id:'m47',g:'H',d:'6 Jul',h:'Serbia',a:'Dinamarca'},
+  {id:'m48',g:'H',d:'6 Jul',h:'Irán',a:'Suiza'},
+];
+
+const DEF = {cuota:200,reg:40,p1:50,p2:30,p3:20,pts_exact:5,pts_sign:2,pw_hash:'',pw_set:false};
+const S = {
+  predictions:   JSON.parse(localStorage.getItem('q26_preds')  || '{}'),
+  results:       JSON.parse(localStorage.getItem('q26_res')    || '{}'),
+  participants:  JSON.parse(localStorage.getItem('q26_parts')  || '["Ana","Carlos","Sofía","Luis","María"]'),
+  active:        localStorage.getItem('q26_active') || 'Ana',
+  cfg:           {...DEF, ...JSON.parse(localStorage.getItem('q26_cfg') || '{}')},
+  adminUnlocked: false,
+  tab:           'pronos'
+};
+
+function save() {
+  localStorage.setItem('q26_preds',  JSON.stringify(S.predictions));
+  localStorage.setItem('q26_res',    JSON.stringify(S.results));
+  localStorage.setItem('q26_parts',  JSON.stringify(S.participants));
+  localStorage.setItem('q26_active', S.active);
+  localStorage.setItem('q26_cfg',    JSON.stringify(S.cfg));
+}
+
+async function sha256(txt) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+  return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2,'0')).join('');
+}
+
+function parseScore(s) {
+  if (!s && s !== 0) return null;
+  const m = String(s).trim().match(/^(\d+)\s*[-–]\s*(\d+)$/);
+  return m ? {h:parseInt(m[1]),a:parseInt(m[2])} : null;
+}
+function sign(sc) { return !sc ? null : sc.h>sc.a ? 'home' : sc.h<sc.a ? 'away' : 'draw'; }
+
+function calcPts(participant) {
+  let pts=0,exact=0,partial=0,total=0;
+  const preds = S.predictions[participant]||{};
+  MATCHES.forEach(m => {
+    const res=parseScore(S.results[m.id]), pr=parseScore(preds[m.id]);
+    if(!res||!pr) return; total++;
+    if(pr.h===res.h&&pr.a===res.a){pts+=S.cfg.pts_exact;exact++;}
+    else if(sign(pr)===sign(res)){pts+=S.cfg.pts_sign;partial++;}
+  });
+  return {pts,exact,partial,total};
+}
+function getRanking() {
+  return S.participants.map(p=>({name:p,...calcPts(p)})).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
+}
+
+// ── ADMIN LOCK ────────────────────────────────────────────────────
+function tryAdmin() {
+  if (S.adminUnlocked) { showTab('admin'); return; }
+  const isFirst = !S.cfg.pw_set;
+  document.getElementById('modal-icon').textContent  = isFirst ? '⚙️' : '🔐';
+  document.getElementById('modal-title').textContent = isFirst ? 'Crear contraseña admin' : 'Área de administración';
+  document.getElementById('modal-desc').textContent  = isFirst
+    ? 'Primera vez: crea la contraseña que usarás para administrar la quiniela. Guárdala bien.'
+    : 'Solo la administradora puede acceder aquí. Ingresa tu contraseña.';
+  document.getElementById('pw-err').textContent = '';
+  document.getElementById('pw-in').value = '';
+  document.getElementById('pw-modal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('pw-in').focus(), 60);
+}
+
+function closeModal() {
+  document.getElementById('pw-modal').style.display = 'none';
+  document.getElementById('pw-in').value = '';
+}
+
+async function checkPw() {
+  const val = document.getElementById('pw-in').value;
+  if (!val) { document.getElementById('pw-err').textContent = 'Escribe una contraseña'; return; }
+
+  if (!S.cfg.pw_set) {
+    if (val.length < 4) { document.getElementById('pw-err').textContent = 'Mínimo 4 caracteres'; return; }
+    S.cfg.pw_hash = await sha256(val);
+    S.cfg.pw_set  = true;
+    save();
+    unlockAdmin();
+    closeModal();
+    showTab('admin');
+    return;
+  }
+
+  const h = await sha256(val);
+  if (h === S.cfg.pw_hash) {
+    unlockAdmin(); closeModal(); showTab('admin');
+  } else {
+    document.getElementById('pw-err').textContent = '❌ Contraseña incorrecta';
+    document.getElementById('pw-in').value = '';
+    document.getElementById('pw-in').focus();
+  }
+}
+
+function unlockAdmin() {
+  S.adminUnlocked = true;
+  document.getElementById('tab-admin-btn').classList.add('unlocked');
+}
+
+function lockAdmin() {
+  S.adminUnlocked = false;
+  document.getElementById('tab-admin-btn').classList.remove('unlocked');
+  showTab('pronos');
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function showTab(tab) {
+  if (tab==='admin' && !S.adminUnlocked) { tryAdmin(); return; }
+  S.tab = tab;
+  ['pronos','ranking','premios','admin'].forEach(t => {
+    document.getElementById('t-'+t).style.display = t===tab ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active', ['pronos','ranking','premios','admin'][i]===tab);
+  });
+  ({pronos:renderPronos,ranking:renderRanking,premios:renderPremios,admin:renderAdmin})[tab]();
+}
+
+// ── PRONÓSTICOS ───────────────────────────────────────────────────
+function renderPronos() {
+  const el=document.getElementById('t-pronos');
+  const preds=S.predictions[S.active]||{};
+  const predCount=MATCHES.filter(m=>parseScore(preds[m.id])).length;
+  const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
+
+  let h=`<div class="alert a-info">Pronósticos de: <strong>${S.active}</strong> · Escribe el marcador exacto (ej: <strong>2-1</strong>, <strong>0-0</strong>)</div>`;
+  h+=`<div class="chip-wrap">${S.participants.map(p=>`<span class="chip ${p===S.active?'active':''}" onclick="S.active='${p}';save();renderPronos()">${p}</span>`).join('')}</div>`;
+  h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/48*100)}%"></div></div>
+      <div class="prog-lbl"><span>${predCount}/48 pronósticos</span><span>${resCount} resultados cargados</span></div>`;
+
+  [...new Set(MATCHES.map(m=>m.g))].forEach(g=>{
+    h+=`<div class="card"><div class="sec">Grupo ${g}</div>`;
+    MATCHES.filter(m=>m.g===g).forEach(m=>{
+      const pr=parseScore(preds[m.id]), res=parseScore(S.results[m.id]);
+      let wc='score-wrap', ptTag='';
+      if(pr&&!res) wc+=' filled';
+      else if(pr&&res){
+        const ex=pr.h===res.h&&pr.a===res.a, sg=sign(pr)===sign(res);
+        if(ex){wc+=' correct';ptTag=`<span class="pts-tag tag-exact">+${S.cfg.pts_exact} exacto</span>`;}
+        else if(sg){wc+=' partial';ptTag=`<span class="pts-tag tag-sign">+${S.cfg.pts_sign} ganador</span>`;}
+        else{wc+=' wrong';ptTag=`<span class="pts-tag tag-wrong">0 pts</span>`;}
+      }
+      h+=`<div class="mrow">
+        <div class="th"><div class="tname">${m.h}</div></div>
+        <div class="mcenter">
+          <div class="mdate">${m.d}</div>
+          <div class="${wc}">
+            <input class="score-in" type="number" min="0" max="20" value="${pr?pr.h:''}" placeholder="0" id="h_${m.id}" onchange="setPred('${m.id}')">
+            <span class="score-dash">-</span>
+            <input class="score-in" type="number" min="0" max="20" value="${pr?pr.a:''}" placeholder="0" id="a_${m.id}" onchange="setPred('${m.id}')">
+          </div>
+          ${ptTag}
+          ${res?`<div style="margin-top:3px;font-size:11px;color:#666">Real: <strong style="color:#185FA5">${res.h}-${res.a}</strong> <span class="res-lbl">${sign(res)==='home'?'Local':sign(res)==='away'?'Visitante':'Empate'}</span></div>`:''}
+        </div>
+        <div class="ta"><div class="tname">${m.a}</div></div>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  el.innerHTML=h;
+}
+
+function setPred(mid) {
+  const hv=document.getElementById('h_'+mid).value, av=document.getElementById('a_'+mid).value;
+  if(hv===''||av==='') return;
+  const h=parseInt(hv),a=parseInt(av);
+  if(isNaN(h)||isNaN(a)) return;
+  if(!S.predictions[S.active]) S.predictions[S.active]={};
+  S.predictions[S.active][mid]=`${h}-${a}`;
+  save();
+}
+
+// ── RANKING ───────────────────────────────────────────────────────
+function renderRanking() {
+  const el=document.getElementById('t-ranking');
+  const rk=getRanking();
+  const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
+  let h=`<div class="alert a-info">Partidos con resultado: <strong>${resCount}/48</strong> · Exacto: <strong>${S.cfg.pts_exact} pts</strong> · Solo ganador: <strong>${S.cfg.pts_sign} pts</strong></div>`;
+  if(!resCount){h+=`<div class="empty">El ranking aparece cuando el admin ingrese resultados.</div>`;el.innerHTML=h;return;}
+  const maxPts=rk[0]?.pts||1;
+  h+=`<div class="card">`;
+  rk.forEach((p,i)=>{
+    h+=`<div class="rnk-item">
+      <div class="rnk-pos ${['p1','p2','p3'][i]||''}">${i+1}</div>
+      <div class="rnk-name">${p.name}</div>
+      <div class="rnk-bar-w"><div class="rnk-bar" style="width:${Math.round(p.pts/maxPts*100)}%"></div></div>
+      <div class="rnk-pts"><strong>${p.pts}</strong>${p.exact}e ${p.partial}g/${p.total}</div>
+    </div>`;
+  });
+  h+=`</div>`;
+  el.innerHTML=h;
+}
+
+// ── PREMIOS ───────────────────────────────────────────────────────
+function renderPremios() {
+  const el=document.getElementById('t-premios');
+  const n=S.participants.length, total=n*S.cfg.cuota;
+  const reg=Math.round(total*S.cfg.reg/100), lig=total-reg;
+  const a1=Math.round(reg*S.cfg.p1/100), a2=Math.round(reg*S.cfg.p2/100), a3=reg-a1-a2;
+  const rk=getRanking();
+  const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
+
+  let h=`<div class="card">
+    <div style="font-size:32px;font-weight:700;color:#185FA5">$${total.toLocaleString()}</div>
+    <div style="font-size:13px;color:#666;margin-top:4px">${n} participantes × $${S.cfg.cuota.toLocaleString()}</div>
+    <div class="prem-grid">
+      <div class="prem-box"><div class="prem-amt">$${reg.toLocaleString()}</div><div class="prem-lbl">Fase regular<br><span style="font-size:11px">${S.cfg.reg}% del bote</span></div></div>
+      <div class="prem-box"><div class="prem-amt">$${lig.toLocaleString()}</div><div class="prem-lbl">Liguilla<br><span style="font-size:11px">${100-S.cfg.reg}% del bote</span></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sec">Distribución fase regular — $${reg.toLocaleString()}</div>
+    <div class="dist-row"><span>🥇 1er lugar (${S.cfg.p1}%)</span><strong>$${a1.toLocaleString()}</strong></div>
+    <div class="dist-row"><span>🥈 2do lugar (${S.cfg.p2}%)</span><strong>$${a2.toLocaleString()}</strong></div>
+    <div class="dist-row"><span>🥉 3er lugar (${S.cfg.p3}%)</span><strong>$${a3.toLocaleString()}</strong></div>
+  </div>`;
+
+  if(resCount>0&&rk.length){
+    const prizes=[a1,a2,a3];
+    h+=`<div class="card"><div class="sec">Líderes actuales</div>`;
+    rk.slice(0,3).forEach((p,i)=>{
+      h+=`<div class="dist-row">
+        <span>${['🥇','🥈','🥉'][i]} <strong>${p.name}</strong> — ${p.pts} pts (${p.exact} exactos)</span>
+        <strong style="color:#185FA5">$${prizes[i].toLocaleString()}</strong>
+      </div>`;
+    });
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────
+function renderAdmin() {
+  const el=document.getElementById('t-admin');
+  const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
+  const sum=S.cfg.p1+S.cfg.p2+S.cfg.p3, sumOk=sum===100;
+
+  let h=`<div class="session-bar">
+    <div class="alert a-ok" style="margin:0;flex:1">${resCount}/48 resultados registrados</div>
+    <span class="badge-admin" style="margin-left:10px" onclick="lockAdmin()">🔓 Cerrar sesión admin</span>
+  </div>`;
+
+  // CARGA EXCEL
+  h+=`<div class="card">
+    <div class="sec">Cargar Excel de participante</div>
+    <div class="alert a-info">La plantilla detecta el nombre de la celda C3. Recibe el .xlsx de cada participante y súbelo aquí.</div>
+    <div class="upload-zone" id="dz" onclick="document.getElementById('xlin').click()"
+      ondragover="event.preventDefault();document.getElementById('dz').classList.add('drag')"
+      ondragleave="document.getElementById('dz').classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div style="font-size:30px;margin-bottom:6px">📂</div>
+      <div style="font-size:14px;color:#666">Arrastra aquí o <strong style="color:#185FA5">haz clic para buscar</strong></div>
+      <div style="font-size:11px;color:#999;margin-top:4px">Archivo .xlsx · Nombre en C3 · Marcadores en col G</div>
+    </div>
+    <input type="file" id="xlin" accept=".xlsx" style="display:none" onchange="handleFile(this.files[0]);this.value=''">
+    <div id="upload-res"></div>
+  </div>`;
+
+  // RESULTADOS
+  h+=`<div class="card">
+    <div class="sec">Resultado oficial de partido</div>
+    <select class="adm-sel" id="res-sel" onchange="fillResult()">
+      <option value="">— Selecciona partido —</option>
+      ${MATCHES.map((m,i)=>{const sc=parseScore(S.results[m.id]);return`<option value="${m.id}">${sc?'✓ ':'   '}${i+1}. [G${m.g}] ${m.h} vs ${m.a} (${m.d})</option>`;}).join('')}
+    </select>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <input class="radm" type="number" min="0" max="20" id="res-h" placeholder="0">
+      <span style="font-size:18px;font-weight:600;color:#999">-</span>
+      <input class="radm" type="number" min="0" max="20" id="res-a" placeholder="0">
+      <button class="btn btn-green" onclick="saveResult()">Guardar</button>
+      <button class="btn btn-red"   onclick="deleteResult()">Borrar</button>
+    </div>
+    <div id="res-fb"></div>
+  </div>`;
+
+  // PARTICIPANTES
+  h+=`<div class="card">
+    <div class="sec">Participantes (${S.participants.length})</div>
+    <div class="chip-wrap">${S.participants.map(p=>`<span class="chip">${p} <span onclick="removePart('${p}')" style="cursor:pointer;color:#a32d2d;font-weight:700;margin-left:2px">×</span></span>`).join('')}</div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input class="adm-inp" id="np" placeholder="Nombre del participante" style="flex:1" onkeydown="if(event.key==='Enter')addPart()">
+      <button class="btn btn-blue" onclick="addPart()">+ Agregar</button>
+    </div>
+  </div>`;
+
+  // CONFIG PUNTOS + PREMIOS
+  h+=`<div class="card">
+    <div class="sec">Puntos</div>
+    <div class="irow"><label>Cuota por persona ($)</label><input class="adm-inp" type="number" id="c-cuota" value="${S.cfg.cuota}" style="width:90px"></div>
+    <div class="irow"><label>Pts marcador exacto</label><input class="adm-inp" type="number" id="c-pts-e" value="${S.cfg.pts_exact}" style="width:70px"></div>
+    <div class="irow"><label>Pts solo ganador/E</label><input class="adm-inp" type="number" id="c-pts-s" value="${S.cfg.pts_sign}" style="width:70px"></div>
+
+    <div class="sec">División del bote total</div>
+    <div class="pct-row">
+      <label>Fase regular</label>
+      <input type="range" id="c-reg" min="0" max="100" step="5" value="${S.cfg.reg}" oninput="document.getElementById('v-reg').textContent=this.value+'%'">
+      <span class="pct-val" id="v-reg">${S.cfg.reg}%</span>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:4px">El resto (${100-S.cfg.reg}%) va a liguilla.</div>
+
+    <div class="sec">Distribución 1°, 2° y 3° lugar <span style="font-weight:400;text-transform:none;font-size:11px">(deben sumar 100%)</span></div>
+    <div class="pct-row">
+      <label>🥇 1er lugar</label>
+      <input type="range" id="c-p1" min="0" max="100" step="5" value="${S.cfg.p1}" oninput="recalcPcts()">
+      <span class="pct-val" id="v-p1">${S.cfg.p1}%</span>
+    </div>
+    <div class="pct-row">
+      <label>🥈 2do lugar</label>
+      <input type="range" id="c-p2" min="0" max="100" step="5" value="${S.cfg.p2}" oninput="recalcPcts()">
+      <span class="pct-val" id="v-p2">${S.cfg.p2}%</span>
+    </div>
+    <div class="pct-row">
+      <label>🥉 3er lugar</label>
+      <input type="range" id="c-p3" min="0" max="100" step="5" value="${S.cfg.p3}" oninput="recalcPcts()">
+      <span class="pct-val" id="v-p3">${S.cfg.p3}%</span>
+    </div>
+    <div style="margin-bottom:0.75rem">
+      Total: <span class="pct-total ${sumOk?'pct-ok':'pct-bad'}" id="pct-sum">${sum}%</span>
+      ${!sumOk?`<span style="font-size:12px;color:#a32d2d;margin-left:8px">⚠️ Ajusta hasta llegar a 100%</span>`:''}
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn btn-blue" onclick="saveCfg()">💾 Guardar configuración</button>
+  </div>`;
+
+  // CAMBIAR CONTRASEÑA
+  h+=`<div class="card">
+    <div class="sec">Cambiar contraseña</div>
+    <div class="alert a-warn" style="font-size:12px">Si cambias la contraseña y la olvidas, necesitarás limpiar el almacenamiento del navegador para restablecerla.</div>
+    <div style="display:flex;gap:8px">
+      <input class="adm-inp" type="password" id="new-pw" placeholder="Nueva contraseña (mín. 4 caracteres)" style="flex:1">
+      <button class="btn btn-gray" onclick="changePw()">Cambiar</button>
+    </div>
+    <div id="pw-chg-fb" style="margin-top:6px;font-size:12px"></div>
+  </div>`;
+
+  el.innerHTML=h;
+  document.getElementById('res-sel').addEventListener('change', fillResult);
+}
+
+function recalcPcts() {
+  const p1=parseInt(document.getElementById('c-p1').value)||0;
+  const p2=parseInt(document.getElementById('c-p2').value)||0;
+  const p3=parseInt(document.getElementById('c-p3').value)||0;
+  const sum=p1+p2+p3;
+  document.getElementById('v-p1').textContent=p1+'%';
+  document.getElementById('v-p2').textContent=p2+'%';
+  document.getElementById('v-p3').textContent=p3+'%';
+  const el=document.getElementById('pct-sum');
+  el.textContent=sum+'%';
+  el.className='pct-total '+(sum===100?'pct-ok':'pct-bad');
+}
+
+function fillResult() {
+  const mid=document.getElementById('res-sel').value;
+  const sc=parseScore(S.results[mid]);
+  document.getElementById('res-h').value=sc?sc.h:'';
+  document.getElementById('res-a').value=sc?sc.a:'';
+}
+
+function saveResult() {
+  const mid=document.getElementById('res-sel').value;
+  if(!mid) return;
+  const h=document.getElementById('res-h').value, a=document.getElementById('res-a').value;
+  if(h===''||a===''){document.getElementById('res-fb').innerHTML=`<div class="alert a-warn">Ingresa ambos goles</div>`;return;}
+  const m=MATCHES.find(x=>x.id===mid);
+  S.results[mid]=`${parseInt(h)}-${parseInt(a)}`;
+  save();
+  document.getElementById('res-fb').innerHTML=`<div class="alert a-ok">✓ ${m.h} ${h}-${a} ${m.a} guardado</div>`;
+  renderAdmin();
+}
+
+function deleteResult() {
+  const mid=document.getElementById('res-sel').value;
+  if(!mid) return;
+  delete S.results[mid]; save(); renderAdmin();
+}
+
+function addPart() {
+  const v=document.getElementById('np').value.trim();
+  if(!v||S.participants.includes(v)) return;
+  S.participants.push(v); save(); renderAdmin();
+}
+
+function removePart(n) {
+  S.participants=S.participants.filter(p=>p!==n);
+  if(S.active===n) S.active=S.participants[0]||'';
+  save(); renderAdmin();
+}
+
+function saveCfg() {
+  const p1=parseInt(document.getElementById('c-p1').value)||0;
+  const p2=parseInt(document.getElementById('c-p2').value)||0;
+  const p3=parseInt(document.getElementById('c-p3').value)||0;
+  if(p1+p2+p3!==100){alert('Los porcentajes de 1°, 2° y 3° deben sumar 100%. Ajústalos antes de guardar.');return;}
+  S.cfg.cuota    =parseInt(document.getElementById('c-cuota').value)||200;
+  S.cfg.reg      =parseInt(document.getElementById('c-reg').value)||40;
+  S.cfg.pts_exact=parseInt(document.getElementById('c-pts-e').value)||5;
+  S.cfg.pts_sign =parseInt(document.getElementById('c-pts-s').value)||2;
+  S.cfg.p1=p1; S.cfg.p2=p2; S.cfg.p3=p3;
+  save();
+  alert('✅ Configuración guardada');
+  renderAdmin();
+}
+
+async function changePw() {
+  const val=document.getElementById('new-pw').value;
+  const fb=document.getElementById('pw-chg-fb');
+  if(!val||val.length<4){fb.innerHTML=`<span style="color:#a32d2d">Mínimo 4 caracteres</span>`;return;}
+  S.cfg.pw_hash=await sha256(val); S.cfg.pw_set=true;
+  save();
+  document.getElementById('new-pw').value='';
+  fb.innerHTML=`<span style="color:#1a4a0a">✅ Contraseña cambiada</span>`;
+}
+
+// ── EXCEL ─────────────────────────────────────────────────────────
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dz').classList.remove('drag');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+}
+
+function handleFile(file) {
+  if(!file) return;
+  const el=document.getElementById('upload-res');
+  el.innerHTML=`<div class="alert a-info">Procesando ${file.name}…</div>`;
+  const reader=new FileReader();
+  reader.onload=function(e) {
+    try {
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets['Pronósticos'];
+      if(!ws){el.innerHTML=`<div class="alert a-err">No se encontró la hoja "Pronósticos".</div>`;return;}
+      const nc=ws['C3'];
+      let nombre=nc?String(nc.v||'').replace('← Escribe tu nombre aquí','').trim():'';
+      if(!nombre){el.innerHTML=`<div class="alert a-err">⚠️ Celda C3 vacía — el participante debe escribir su nombre ahí.</div>`;return;}
+      if(!S.predictions[nombre]) S.predictions[nombre]={};
+      let count=0,bad=0;
+      MATCHES.forEach((m,i)=>{
+        // Col G (index 6) = goles local, Col I (index 8) = goles visitante
+        const cellH=ws[XLSX.utils.encode_cell({r:i+5,c:6})];
+        const cellA=ws[XLSX.utils.encode_cell({r:i+5,c:8})];
+        const hv = cellH && cellH.v !== undefined ? String(cellH.v).trim() : '';
+        const av = cellA && cellA.v !== undefined ? String(cellA.v).trim() : '';
+        if(hv!==''&&av!==''){
+          const h=parseInt(hv), a=parseInt(av);
+          if(!isNaN(h)&&!isNaN(a)&&h>=0&&a>=0){
+            S.predictions[nombre][m.id]=`${h}-${a}`; count++;
+          } else bad++;
+        } else if(hv!==''||av!=='') bad++;
+      });
+      if(!S.participants.includes(nombre)) S.participants.push(nombre);
+      S.active=nombre; save();
+      el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} pronósticos importados${bad?` · ${bad} con formato inválido (deben ser ej: 2-1)`:''}.</div>`;
+      renderAdmin();
+    } catch(err) {
+      el.innerHTML=`<div class="alert a-err">Error: ${err.message}</div>`;
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+renderPronos();
+</script>
+</body>
+</html>
