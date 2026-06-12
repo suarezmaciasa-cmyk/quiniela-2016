@@ -162,7 +162,7 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 .group-pred-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f0;font-size:13px}
 .group-pred-row:last-child{border-bottom:none}
 .group-pred-lbl{min-width:90px;font-weight:700;color:#555;font-size:12px}
-.group-pred-input{flex:1;padding:5px 10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:12px;background:#fff9e6}
+.group-pred-input{flex:1;padding:5px 10px;border:1px solid #ccc;border-radius:6px;font-family:inherit;font-size:12px;background:#fff9e6;cursor:pointer;appearance:auto}
 .group-pred-pts{font-size:11px;padding:2px 7px;border-radius:4px;background:#d4edda;color:#1a4a0a;font-weight:700;white-space:nowrap}
 
 @media(max-width:560px){.prem-grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 110px 1fr}.pts-showcase{grid-template-columns:1fr}.hero-stats{gap:1.2rem}}
@@ -206,54 +206,90 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 
 <script>
 const MATCHES=[
+  // GRUPO A
   {id:'m01',g:'A',d:'11 Jun',h:'México',a:'Sudáfrica'},
   {id:'m02',g:'A',d:'11 Jun',h:'Corea del Sur',a:'Rep. Checa'},
-  {id:'m03',g:'B',d:'13 Jun',h:'España',a:'Marruecos'},
-  {id:'m04',g:'B',d:'13 Jun',h:'Portugal',a:'Argentina'},
-  {id:'m05',g:'C',d:'14 Jun',h:'Francia',a:'Brasil'},
-  {id:'m06',g:'C',d:'14 Jun',h:'Bélgica',a:'Japón'},
-  {id:'m07',g:'D',d:'15 Jun',h:'Alemania',a:'Países Bajos'},
-  {id:'m08',g:'D',d:'15 Jun',h:'Inglaterra',a:'Estados Unidos'},
-  {id:'m09',g:'E',d:'16 Jun',h:'Italia',a:'Uruguay'},
-  {id:'m10',g:'E',d:'16 Jun',h:'Ecuador',a:'Senegal'},
-  {id:'m11',g:'F',d:'17 Jun',h:'Colombia',a:'Polonia'},
-  {id:'m12',g:'F',d:'17 Jun',h:'Camerún',a:'Turquía'},
-  {id:'m13',g:'A',d:'18 Jun',h:'México',a:'Corea del Sur'},
-  {id:'m14',g:'A',d:'18 Jun',h:'Rep. Checa',a:'Sudáfrica'},
-  {id:'m15',g:'B',d:'19 Jun',h:'Portugal',a:'Marruecos'},
-  {id:'m16',g:'B',d:'19 Jun',h:'Argentina',a:'España'},
-  {id:'m17',g:'C',d:'20 Jun',h:'Brasil',a:'Bélgica'},
-  {id:'m18',g:'C',d:'20 Jun',h:'Japón',a:'Francia'},
-  {id:'m19',g:'D',d:'21 Jun',h:'Países Bajos',a:'Inglaterra'},
-  {id:'m20',g:'D',d:'21 Jun',h:'Estados Unidos',a:'Alemania'},
-  {id:'m21',g:'E',d:'22 Jun',h:'Uruguay',a:'Ecuador'},
-  {id:'m22',g:'E',d:'22 Jun',h:'Senegal',a:'Italia'},
-  {id:'m23',g:'F',d:'23 Jun',h:'Polonia',a:'Camerún'},
-  {id:'m24',g:'F',d:'23 Jun',h:'Turquía',a:'Colombia'},
-  {id:'m25',g:'A',d:'25 Jun',h:'México',a:'Rep. Checa'},
-  {id:'m26',g:'A',d:'25 Jun',h:'Sudáfrica',a:'Corea del Sur'},
-  {id:'m27',g:'B',d:'26 Jun',h:'España',a:'Portugal'},
-  {id:'m28',g:'B',d:'26 Jun',h:'Marruecos',a:'Argentina'},
-  {id:'m29',g:'C',d:'27 Jun',h:'Francia',a:'Japón'},
-  {id:'m30',g:'C',d:'27 Jun',h:'Brasil',a:'Bélgica'},
-  {id:'m31',g:'D',d:'28 Jun',h:'Alemania',a:'Estados Unidos'},
-  {id:'m32',g:'D',d:'28 Jun',h:'Países Bajos',a:'Inglaterra'},
-  {id:'m33',g:'E',d:'29 Jun',h:'Italia',a:'Ecuador'},
-  {id:'m34',g:'E',d:'29 Jun',h:'Uruguay',a:'Senegal'},
-  {id:'m35',g:'F',d:'30 Jun',h:'Colombia',a:'Turquía'},
-  {id:'m36',g:'F',d:'30 Jun',h:'Polonia',a:'Camerún'},
-  {id:'m37',g:'G',d:'1 Jul',h:'Croacia',a:'Arabia Saudita'},
-  {id:'m38',g:'G',d:'1 Jul',h:'Australia',a:'Ghana'},
-  {id:'m39',g:'G',d:'3 Jul',h:'Croacia',a:'Australia'},
-  {id:'m40',g:'G',d:'3 Jul',h:'Arabia Saudita',a:'Ghana'},
-  {id:'m41',g:'G',d:'5 Jul',h:'Croacia',a:'Ghana'},
-  {id:'m42',g:'G',d:'5 Jul',h:'Arabia Saudita',a:'Australia'},
-  {id:'m43',g:'H',d:'2 Jul',h:'Serbia',a:'Irán'},
-  {id:'m44',g:'H',d:'2 Jul',h:'Suiza',a:'Dinamarca'},
-  {id:'m45',g:'H',d:'4 Jul',h:'Serbia',a:'Suiza'},
-  {id:'m46',g:'H',d:'4 Jul',h:'Irán',a:'Dinamarca'},
-  {id:'m47',g:'H',d:'6 Jul',h:'Serbia',a:'Dinamarca'},
-  {id:'m48',g:'H',d:'6 Jul',h:'Irán',a:'Suiza'},
+  {id:'m03',g:'A',d:'18 Jun',h:'Rep. Checa',a:'Sudáfrica'},
+  {id:'m04',g:'A',d:'18 Jun',h:'México',a:'Corea del Sur'},
+  {id:'m05',g:'A',d:'24 Jun',h:'Rep. Checa',a:'México'},
+  {id:'m06',g:'A',d:'24 Jun',h:'Sudáfrica',a:'Corea del Sur'},
+  // GRUPO B
+  {id:'m07',g:'B',d:'12 Jun',h:'Canadá',a:'Bosnia y Herzegovina'},
+  {id:'m08',g:'B',d:'13 Jun',h:'Qatar',a:'Suiza'},
+  {id:'m09',g:'B',d:'18 Jun',h:'Suiza',a:'Bosnia y Herzegovina'},
+  {id:'m10',g:'B',d:'18 Jun',h:'Canadá',a:'Qatar'},
+  {id:'m11',g:'B',d:'24 Jun',h:'Suiza',a:'Canadá'},
+  {id:'m12',g:'B',d:'24 Jun',h:'Bosnia y Herzegovina',a:'Qatar'},
+  // GRUPO C
+  {id:'m13',g:'C',d:'13 Jun',h:'Brasil',a:'Marruecos'},
+  {id:'m14',g:'C',d:'13 Jun',h:'Haití',a:'Escocia'},
+  {id:'m15',g:'C',d:'19 Jun',h:'Escocia',a:'Marruecos'},
+  {id:'m16',g:'C',d:'19 Jun',h:'Brasil',a:'Haití'},
+  {id:'m17',g:'C',d:'24 Jun',h:'Escocia',a:'Brasil'},
+  {id:'m18',g:'C',d:'24 Jun',h:'Marruecos',a:'Haití'},
+  // GRUPO D
+  {id:'m19',g:'D',d:'12 Jun',h:'Estados Unidos',a:'Paraguay'},
+  {id:'m20',g:'D',d:'13 Jun',h:'Australia',a:'Turquía'},
+  {id:'m21',g:'D',d:'19 Jun',h:'Estados Unidos',a:'Australia'},
+  {id:'m22',g:'D',d:'19 Jun',h:'Turquía',a:'Paraguay'},
+  {id:'m23',g:'D',d:'25 Jun',h:'Turquía',a:'Estados Unidos'},
+  {id:'m24',g:'D',d:'25 Jun',h:'Paraguay',a:'Australia'},
+  // GRUPO E
+  {id:'m25',g:'E',d:'14 Jun',h:'Alemania',a:'Curazao'},
+  {id:'m26',g:'E',d:'14 Jun',h:'Costa de Marfil',a:'Ecuador'},
+  {id:'m27',g:'E',d:'20 Jun',h:'Alemania',a:'Costa de Marfil'},
+  {id:'m28',g:'E',d:'20 Jun',h:'Ecuador',a:'Curazao'},
+  {id:'m29',g:'E',d:'25 Jun',h:'Ecuador',a:'Alemania'},
+  {id:'m30',g:'E',d:'25 Jun',h:'Curazao',a:'Costa de Marfil'},
+  // GRUPO F
+  {id:'m31',g:'F',d:'14 Jun',h:'Países Bajos',a:'Japón'},
+  {id:'m32',g:'F',d:'14 Jun',h:'Suecia',a:'Túnez'},
+  {id:'m33',g:'F',d:'20 Jun',h:'Países Bajos',a:'Suecia'},
+  {id:'m34',g:'F',d:'20 Jun',h:'Túnez',a:'Japón'},
+  {id:'m35',g:'F',d:'25 Jun',h:'Japón',a:'Suecia'},
+  {id:'m36',g:'F',d:'25 Jun',h:'Túnez',a:'Países Bajos'},
+  // GRUPO G
+  {id:'m37',g:'G',d:'15 Jun',h:'Bélgica',a:'Egipto'},
+  {id:'m38',g:'G',d:'15 Jun',h:'Irán',a:'Nueva Zelanda'},
+  {id:'m39',g:'G',d:'21 Jun',h:'Bélgica',a:'Irán'},
+  {id:'m40',g:'G',d:'21 Jun',h:'Nueva Zelanda',a:'Egipto'},
+  {id:'m41',g:'G',d:'26 Jun',h:'Egipto',a:'Irán'},
+  {id:'m42',g:'G',d:'26 Jun',h:'Nueva Zelanda',a:'Bélgica'},
+  // GRUPO H
+  {id:'m43',g:'H',d:'15 Jun',h:'España',a:'Cabo Verde'},
+  {id:'m44',g:'H',d:'15 Jun',h:'Arabia Saudita',a:'Uruguay'},
+  {id:'m45',g:'H',d:'21 Jun',h:'España',a:'Arabia Saudita'},
+  {id:'m46',g:'H',d:'21 Jun',h:'Uruguay',a:'Cabo Verde'},
+  {id:'m47',g:'H',d:'26 Jun',h:'Cabo Verde',a:'Arabia Saudita'},
+  {id:'m48',g:'H',d:'26 Jun',h:'Uruguay',a:'España'},
+  // GRUPO I
+  {id:'m49',g:'I',d:'16 Jun',h:'Francia',a:'Senegal'},
+  {id:'m50',g:'I',d:'16 Jun',h:'Irak',a:'Noruega'},
+  {id:'m51',g:'I',d:'22 Jun',h:'Francia',a:'Irak'},
+  {id:'m52',g:'I',d:'22 Jun',h:'Noruega',a:'Senegal'},
+  {id:'m53',g:'I',d:'26 Jun',h:'Noruega',a:'Francia'},
+  {id:'m54',g:'I',d:'26 Jun',h:'Senegal',a:'Irak'},
+  // GRUPO J
+  {id:'m55',g:'J',d:'16 Jun',h:'Argentina',a:'Argelia'},
+  {id:'m56',g:'J',d:'16 Jun',h:'Austria',a:'Jordania'},
+  {id:'m57',g:'J',d:'22 Jun',h:'Argentina',a:'Austria'},
+  {id:'m58',g:'J',d:'22 Jun',h:'Jordania',a:'Argelia'},
+  {id:'m59',g:'J',d:'27 Jun',h:'Argelia',a:'Austria'},
+  {id:'m60',g:'J',d:'27 Jun',h:'Jordania',a:'Argentina'},
+  // GRUPO K
+  {id:'m61',g:'K',d:'17 Jun',h:'Portugal',a:'R.D. del Congo'},
+  {id:'m62',g:'K',d:'17 Jun',h:'Uzbekistán',a:'Colombia'},
+  {id:'m63',g:'K',d:'23 Jun',h:'Portugal',a:'Uzbekistán'},
+  {id:'m64',g:'K',d:'23 Jun',h:'Colombia',a:'R.D. del Congo'},
+  {id:'m65',g:'K',d:'27 Jun',h:'Colombia',a:'Portugal'},
+  {id:'m66',g:'K',d:'27 Jun',h:'R.D. del Congo',a:'Uzbekistán'},
+  // GRUPO L
+  {id:'m67',g:'L',d:'17 Jun',h:'Inglaterra',a:'Croacia'},
+  {id:'m68',g:'L',d:'17 Jun',h:'Ghana',a:'Panamá'},
+  {id:'m69',g:'L',d:'23 Jun',h:'Inglaterra',a:'Ghana'},
+  {id:'m70',g:'L',d:'23 Jun',h:'Panamá',a:'Croacia'},
+  {id:'m71',g:'L',d:'27 Jun',h:'Panamá',a:'Inglaterra'},
+  {id:'m72',g:'L',d:'27 Jun',h:'Croacia',a:'Ghana'},
 ];
 
 const GROUPS_DATA={
@@ -392,7 +428,7 @@ function renderTutorial(){
         <h2>¡Bienvenida a la Quiniela Mundial 2026!</h2>
         <p>Aquí te explicamos todo lo que necesitas saber para participar</p>
         <div class="hero-stats">
-          <div class="hero-stat"><div class="hero-stat-num">48</div><div class="hero-stat-lbl">Partidos fase grupos</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">72</div><div class="hero-stat-lbl">Partidos fase grupos</div></div>
           <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-lbl">Grupos</div></div>
           <div class="hero-stat"><div class="hero-stat-num">$${total.toLocaleString()}</div><div class="hero-stat-lbl">Bote total</div></div>
         </div>
@@ -639,27 +675,30 @@ function renderPronos(){
 
   let h=`<div class="alert a-info">Pronósticos de: <strong>${S.active}</strong></div>`;
   h+=`<div class="chip-wrap">${S.participants.map(p=>`<span class="chip ${p===S.active?'active':''}" onclick="S.active='${p}';save();renderPronos()">${p}</span>`).join('')}</div>`;
-  h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/48*100)}%"></div></div>
-      <div class="prog-lbl"><span>${predCount}/48 marcadores</span><span>${resCount} resultados cargados</span></div>`;
+  h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/72*100)}%"></div></div>
+      <div class="prog-lbl"><span>${predCount}/72 marcadores</span><span>${resCount} resultados cargados</span></div>`;
 
   // Clasificación de grupos
   h+=`<div class="card">
-    <div class="sec">1° y 2° lugar por grupo (2 pts cada uno)</div>
+    <div class="sec">1° y 2° lugar por grupo (2 pts cada uno) — elige de la lista ▼</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">`;
   Object.keys(GROUPS_DATA).forEach(g=>{
     const gp=S.groupPreds[S.active]||{};
     const col=GROUP_COLORS[g];
+    const teams=GROUPS_DATA[g];
+    const opts=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${gp[g+'_1']===t?'selected':''}>${t}</option>`).join('')}`;
+    const opts2=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${gp[g+'_2']===t?'selected':''}>${t}</option>`).join('')}`;
     h+=`<div style="border:1px solid #e0e0d8;border-radius:8px;overflow:hidden">
-      <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px">Grupo ${g} — ${GROUPS_DATA[g].filter(t=>t!=='Por definir').join(', ')||'Por definir'}</div>
+      <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px">Grupo ${g} — ${teams.join(', ')}</div>
       <div style="padding:6px 10px">
         <div class="group-pred-row">
           <div class="group-pred-lbl">🥇 1er lugar</div>
-          <input class="group-pred-input" placeholder="Equipo..." value="${(gp[g+'_1'])||''}" onchange="setGroupPred('${g}','1',this.value)">
+          <select class="group-pred-input" onchange="setGroupPred('${g}','1',this.value)">${opts}</select>
           <div class="group-pred-pts">2 pts</div>
         </div>
         <div class="group-pred-row">
           <div class="group-pred-lbl">🥈 2do lugar</div>
-          <input class="group-pred-input" placeholder="Equipo..." value="${(gp[g+'_2'])||''}" onchange="setGroupPred('${g}','2',this.value)">
+          <select class="group-pred-input" onchange="setGroupPred('${g}','2',this.value)">${opts2}</select>
           <div class="group-pred-pts">2 pts</div>
         </div>
       </div>
@@ -719,7 +758,7 @@ function setGroupPred(g,pos,val){
 // ── GRUPOS ────────────────────────────────────────
 function renderGrupos(){
   const el=document.getElementById('t-grupos');
-  let h=`<div class="alert a-info">12 grupos del Mundial 2026 · Los grupos I-L se confirmarán al completarse las clasificatorias</div>`;
+  let h=`<div class="alert a-info">12 grupos oficiales del Mundial 2026 · Los 2 primeros + 8 mejores terceros avanzan a 16avos</div>`;
   h+=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">`;
   Object.entries(GROUPS_DATA).forEach(([g,teams])=>{
     const col=GROUP_COLORS[g];
@@ -944,16 +983,26 @@ function handleFile(file){
       if(!nombre){el.innerHTML=`<div class="alert a-err">⚠️ Celda C3 vacía — el participante debe escribir su nombre.</div>`;return;}
       if(!S.predictions[nombre])S.predictions[nombre]={};
       let count=0,bad=0;
+
+      // Auto-detectar formato: nuevo (H=idx7, J=idx9 con col hora) o viejo (G=idx6, I=idx8)
+      const testNew=ws[XLSX.utils.encode_cell({r:5,c:7})];
+      const testOld=ws[XLSX.utils.encode_cell({r:5,c:6})];
+      // Si hay hora en col D (idx3) y local en col E (idx4) → formato nuevo
+      const hasHora=ws[XLSX.utils.encode_cell({r:5,c:3})]?.v;
+      const colH = hasHora ? 7 : 6;  // col H nuevo / col G viejo
+      const colA = hasHora ? 9 : 8;  // col J nuevo / col I viejo
+
       MATCHES.forEach((m,i)=>{
-        const cH=ws[XLSX.utils.encode_cell({r:i+5,c:6})];
-        const cA=ws[XLSX.utils.encode_cell({r:i+5,c:8})];
+        const rowIdx=i+5;
+        const cH=ws[XLSX.utils.encode_cell({r:rowIdx,c:colH})];
+        const cA=ws[XLSX.utils.encode_cell({r:rowIdx,c:colA})];
         const hv=cH&&cH.v!==undefined?String(cH.v).trim():'';
         const av=cA&&cA.v!==undefined?String(cA.v).trim():'';
         if(hv!==''&&av!==''){
           const h=parseInt(hv),a=parseInt(av);
           if(!isNaN(h)&&!isNaN(a)&&h>=0&&a>=0){S.predictions[nombre][m.id]=`${h}-${a}`;count++;}
           else bad++;
-        }else if(hv!==''||av!=='')bad++;
+        }
       });
 
       // ── Hoja 2: Pronósticos Iniciales (1°/2° de grupo) ──
@@ -965,15 +1014,16 @@ function handleFile(file){
       if(!S.groupPreds[nombre])S.groupPreds[nombre]={};
       let gpCount=0;
       if(ws2){
-        const groups=Object.keys(GROUPS_DATA); // A..L
+        const groups=Object.keys(GROUPS_DATA);
         groups.forEach((g,gi)=>{
-          const dataRow=7+gi; // row index 0-based: row 8 = index 7
+          // Grupos empiezan en fila 7 (idx 6): A=fila7, B=fila8 ... L=fila18
+          const dataRow=6+gi;
           const c1=ws2[XLSX.utils.encode_cell({r:dataRow,c:1})]; // col B = 1° lugar
           const c2=ws2[XLSX.utils.encode_cell({r:dataRow,c:4})]; // col E = 2° lugar
           const v1=c1&&c1.v!==undefined?String(c1.v).trim():'';
           const v2=c2&&c2.v!==undefined?String(c2.v).trim():'';
-          if(v1&&!v1.includes('←')){S.groupPreds[nombre][g+'_1']=v1;gpCount++;}
-          if(v2&&!v2.includes('←')){S.groupPreds[nombre][g+'_2']=v2;gpCount++;}
+          if(v1&&!v1.includes('←')&&!v1.includes('Grp')&&!v1.includes('Grupo')){S.groupPreds[nombre][g+'_1']=v1;gpCount++;}
+          if(v2&&!v2.includes('←')&&!v2.includes('Grp')&&!v2.includes('Grupo')){S.groupPreds[nombre][g+'_2']=v2;gpCount++;}
         });
       }
 
