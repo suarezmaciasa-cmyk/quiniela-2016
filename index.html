@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Quiniela Mundial 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    databaseURL: "https://quiniela-2026-20467-default-rtdb.firebaseio.com"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  window._db = db;
+  window._ref = ref;
+  window._set = set;
+  window._get = get;
+  window._onValue = onValue;
+  window._update = update;
+  window._fbReady = true;
+  // Trigger init after Firebase loads
+  if(window._fbInitCb) window._fbInitCb();
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
@@ -87,6 +106,14 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 .pct-total{display:inline-block;font-size:13px;font-weight:700;padding:5px 10px;border-radius:6px;margin-top:2px}
 .pct-ok{background:#d4edda;color:#1a4a0a}
 .pct-bad{background:#fde8e8;color:#7a1f1f}
+
+/* ── BLOQUEO DE PRONÓSTICOS ── */
+.locked-banner{background:#fff3cd;border:1px solid #f0c040;border-radius:10px;padding:10px 14px;font-size:13px;color:#633806;margin-bottom:.7rem;display:flex;align-items:center;gap:10px}
+.locked-banner .lock-icon{font-size:22px;flex-shrink:0}
+.score-locked{display:flex;align-items:center;gap:4px}
+.score-locked .score-val{width:30px;height:28px;border:1px solid #d4edda;border-radius:6px;text-align:center;font-size:14px;font-weight:700;background:#f8fdf8;color:#2d6a1a;display:flex;align-items:center;justify-content:center}
+.score-locked .score-dash{font-size:14px;font-weight:700;color:#999}
+.select-locked{flex:1;padding:5px 10px;border:1px solid #d4edda;border-radius:6px;font-family:inherit;font-size:12px;background:#f8fdf8;color:#2d6a1a;font-weight:700;pointer-events:none;cursor:default;appearance:none}
 
 /* MODAL */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:999}
@@ -315,22 +342,107 @@ const GROUP_COLORS={
 
 const DEF={cuota:200,reg:40,p1:50,p2:30,p3:20,pts_exact:3,pts_sign:1,pw_hash:'',pw_set:false};
 const S={
-  predictions:  JSON.parse(localStorage.getItem('q26_preds') ||'{}'),
-  results:      JSON.parse(localStorage.getItem('q26_res')   ||'{}'),
-  participants: JSON.parse(localStorage.getItem('q26_parts') ||'["Ana","Carlos","Sofía","Luis","María"]'),
-  active:       localStorage.getItem('q26_active')||'Ana',
-  cfg:          {...DEF,...JSON.parse(localStorage.getItem('q26_cfg')||'{}')},
-  groupPreds:   JSON.parse(localStorage.getItem('q26_grp')   ||'{}'),
-  adminUnlocked:false, tab:'tutorial', tutorialStep:0
+  predictions:{}, results:{}, participants:[], groupPreds:{},
+  active: localStorage.getItem('q26_active')||'',
+  cfg:{...DEF},
+  adminUnlocked:false, tab:'tutorial', tutorialStep:0,
+  loaded:false
 };
 
-function save(){
-  localStorage.setItem('q26_preds',  JSON.stringify(S.predictions));
-  localStorage.setItem('q26_res',    JSON.stringify(S.results));
-  localStorage.setItem('q26_parts',  JSON.stringify(S.participants));
+// ── FIREBASE HELPERS ─────────────────────────────────
+const DB_URL = "https://quiniela-2026-20467-default-rtdb.firebaseio.com";
+
+async function fbGet(path){
+  const r = await fetch(`${DB_URL}/${path}.json`);
+  return r.ok ? r.json() : null;
+}
+async function fbSet(path, data){
+  await fetch(`${DB_URL}/${path}.json`, {
+    method:'PUT', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+}
+async function fbPatch(path, data){
+  await fetch(`${DB_URL}/${path}.json`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(data)
+  });
+}
+
+// Cargar todos los datos desde Firebase al arrancar
+async function loadFromFirebase(){
+  showLoading(true);
+  try {
+    const data = await fbGet('');
+    if(data){
+      S.predictions  = data.predictions  || {};
+      S.results      = data.results      || {};
+      S.participants = data.participants || ['Participante 1'];
+      S.groupPreds   = data.groupPreds   || {};
+      S.cfg          = {...DEF, ...(data.cfg||{})};
+    } else {
+      // Primera vez: inicializar con valores por defecto
+      S.participants = [];
+      await fbSet('cfg', DEF);
+    }
+    if(S.active && !S.participants.includes(S.active)) S.active = S.participants[0]||'';
+  } catch(e){ console.error('Firebase error:', e); }
+  S.loaded = true;
+  showLoading(false);
+  renderTutorial();
+  startLiveSync();
+}
+
+// Sync en tiempo real cada 15 segundos para ranking/resultados
+function startLiveSync(){
+  setInterval(async()=>{
+    if(!S.tab || S.tab==='admin') return;
+    try {
+      const res = await fbGet('results');
+      const parts = await fbGet('participants');
+      const preds = await fbGet('predictions');
+      const gp = await fbGet('groupPreds');
+      if(res) S.results = res;
+      if(parts) S.participants = parts;
+      if(preds) S.predictions = preds;
+      if(gp) S.groupPreds = gp;
+      if(S.tab==='ranking') renderRanking();
+      if(S.tab==='premios') renderPremios();
+      if(S.tab==='pronos') renderPronos();
+    } catch(e){}
+  }, 15000);
+}
+
+function showLoading(show){
+  let el = document.getElementById('loading-overlay');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText='position:fixed;inset:0;background:rgba(255,255,255,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:system-ui';
+    el.innerHTML=`<div style="font-size:40px;margin-bottom:1rem">⚽</div><div style="font-size:16px;font-weight:600;color:#185FA5">Cargando quiniela...</div><div style="font-size:13px;color:#888;margin-top:6px">Conectando con Firebase</div>`;
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+// Guardar todo en Firebase
+async function save(){
   localStorage.setItem('q26_active', S.active);
-  localStorage.setItem('q26_cfg',    JSON.stringify(S.cfg));
-  localStorage.setItem('q26_grp',    JSON.stringify(S.groupPreds));
+  try {
+    await fbPatch('', {
+      predictions: S.predictions,
+      results: S.results,
+      participants: S.participants,
+      groupPreds: S.groupPreds,
+      cfg: S.cfg
+    });
+  } catch(e){ console.error('Save error:', e); }
+}
+
+// Guardar solo una sección (más rápido para pronósticos)
+async function saveSection(section, data){
+  localStorage.setItem('q26_active', S.active);
+  try { await fbSet(section, data); } catch(e){ console.error(e); }
 }
 
 async function sha256(t){
@@ -359,6 +471,12 @@ function getRanking(){
   return S.participants.map(p=>({name:p,...calcPts(p)})).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
 }
 
+// ── BLOQUEO: un participante está bloqueado si ya tiene pronósticos cargados ──
+function isLocked(participant){
+  const preds = S.predictions[participant] || {};
+  return Object.keys(preds).length > 0;
+}
+
 // ── ADMIN LOCK ────────────────────────────────────
 function tryAdmin(){
   if(S.adminUnlocked){showTab('admin');return;}
@@ -377,7 +495,7 @@ async function checkPw(){
   if(!val){document.getElementById('pw-err').textContent='Escribe una contraseña';return;}
   if(!S.cfg.pw_set){
     if(val.length<4){document.getElementById('pw-err').textContent='Mínimo 4 caracteres';return;}
-    S.cfg.pw_hash=await sha256(val);S.cfg.pw_set=true;save();
+    S.cfg.pw_hash=await sha256(val);S.cfg.pw_set=true;saveSection('cfg',S.cfg);
     unlockAdmin();closeModal();showTab('admin');return;
   }
   const h=await sha256(val);
@@ -672,9 +790,15 @@ function renderPronos(){
   const preds=S.predictions[S.active]||{};
   const predCount=MATCHES.filter(m=>parseScore(preds[m.id])).length;
   const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
+  const locked=isLocked(S.active);
 
   let h=`<div class="alert a-info">Pronósticos de: <strong>${S.active}</strong></div>`;
-  h+=`<div class="chip-wrap">${S.participants.map(p=>`<span class="chip ${p===S.active?'active':''}" onclick="S.active='${p}';save();renderPronos()">${p}</span>`).join('')}</div>`;
+  h+=`<div class="chip-wrap">${S.participants.map(p=>`<span class="chip ${p===S.active?'active':''}" onclick="S.active='${p}';localStorage.setItem('q26_active','${p}');renderPronos()">${p}</span>`).join('')}</div>`;
+
+  if(locked){
+    h+=`<div class="locked-banner"><span class="lock-icon">🔒</span><div><strong>Pronósticos bloqueados</strong> — Ya entregaste tu Excel. Solo el admin puede actualizarlos subiendo un nuevo archivo en la pestaña Admin.</div></div>`;
+  }
+
   h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/72*100)}%"></div></div>
       <div class="prog-lbl"><span>${predCount}/72 marcadores</span><span>${resCount} resultados cargados</span></div>`;
 
@@ -686,19 +810,25 @@ function renderPronos(){
     const gp=S.groupPreds[S.active]||{};
     const col=GROUP_COLORS[g];
     const teams=GROUPS_DATA[g];
-    const opts=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${gp[g+'_1']===t?'selected':''}>${t}</option>`).join('')}`;
-    const opts2=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${gp[g+'_2']===t?'selected':''}>${t}</option>`).join('')}`;
+    const v1=gp[g+'_1']||'';
+    const v2=gp[g+'_2']||'';
+    const opts=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${v1===t?'selected':''}>${t}</option>`).join('')}`;
+    const opts2=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${v2===t?'selected':''}>${t}</option>`).join('')}`;
     h+=`<div style="border:1px solid #e0e0d8;border-radius:8px;overflow:hidden">
       <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px">Grupo ${g} — ${teams.join(', ')}</div>
       <div style="padding:6px 10px">
         <div class="group-pred-row">
           <div class="group-pred-lbl">🥇 1er lugar</div>
-          <select class="group-pred-input" onchange="setGroupPred('${g}','1',this.value)">${opts}</select>
+          ${locked
+            ? `<div class="select-locked">${v1||'—'}</div>`
+            : `<select class="group-pred-input" onchange="setGroupPred('${g}','1',this.value)">${opts}</select>`}
           <div class="group-pred-pts">2 pts</div>
         </div>
         <div class="group-pred-row">
           <div class="group-pred-lbl">🥈 2do lugar</div>
-          <select class="group-pred-input" onchange="setGroupPred('${g}','2',this.value)">${opts2}</select>
+          ${locked
+            ? `<div class="select-locked">${v2||'—'}</div>`
+            : `<select class="group-pred-input" onchange="setGroupPred('${g}','2',this.value)">${opts2}</select>`}
           <div class="group-pred-pts">2 pts</div>
         </div>
       </div>
@@ -721,15 +851,24 @@ function renderPronos(){
         else if(sg){wc+=' partial';ptTag=`<span class="pts-tag tag-sign">+${S.cfg.pts_sign}</span>`;}
         else{wc+=' wrong';ptTag=`<span class="pts-tag tag-wrong">0</span>`;}
       }
+      // Vista según bloqueo
+      const scoreDisplay = (locked && pr)
+        ? `<div class="score-locked">
+             <div class="score-val">${pr.h}</div>
+             <span class="score-dash">-</span>
+             <div class="score-val">${pr.a}</div>
+           </div>`
+        : `<div class="${wc}">
+             <input class="score-in" type="number" min="0" max="20" value="${pr?pr.h:''}" placeholder="0" id="h_${m.id}" onchange="setPred('${m.id}')">
+             <span class="score-dash">-</span>
+             <input class="score-in" type="number" min="0" max="20" value="${pr?pr.a:''}" placeholder="0" id="a_${m.id}" onchange="setPred('${m.id}')">
+           </div>
+           ${locked && !pr ? '<div style="font-size:10px;color:#aaa;font-style:italic;margin-top:2px">Sin pronóstico</div>' : ''}`;
       h+=`<div class="mrow">
         <div class="th"><div class="tname">${m.h}</div></div>
         <div class="mcenter">
           <div class="mdate">${m.d}</div>
-          <div class="${wc}">
-            <input class="score-in" type="number" min="0" max="20" value="${pr?pr.h:''}" placeholder="0" id="h_${m.id}" onchange="setPred('${m.id}')">
-            <span class="score-dash">-</span>
-            <input class="score-in" type="number" min="0" max="20" value="${pr?pr.a:''}" placeholder="0" id="a_${m.id}" onchange="setPred('${m.id}')">
-          </div>
+          ${scoreDisplay}
           ${ptTag}
           ${res?`<div style="margin-top:2px;font-size:10px;color:#666">Real: <strong style="color:#185FA5">${res.h}-${res.a}</strong> <span class="res-lbl">${sign(res)==='home'?'Local':sign(res)==='away'?'Visitante':'Empate'}</span></div>`:''}
         </div>
@@ -747,12 +886,14 @@ function setPred(mid){
   const h=parseInt(hv),a=parseInt(av);
   if(isNaN(h)||isNaN(a))return;
   if(!S.predictions[S.active])S.predictions[S.active]={};
-  S.predictions[S.active][mid]=`${h}-${a}`;save();
+  S.predictions[S.active][mid]=`${h}-${a}`;
+  saveSection('predictions', S.predictions);
 }
 
 function setGroupPred(g,pos,val){
   if(!S.groupPreds[S.active])S.groupPreds[S.active]={};
-  S.groupPreds[S.active][g+'_'+pos]=val.trim();save();
+  S.groupPreds[S.active][g+'_'+pos]=val.trim();
+  saveSection('groupPreds', S.groupPreds);
 }
 
 // ── GRUPOS ────────────────────────────────────────
@@ -924,23 +1065,23 @@ function saveResult(){
   const h=document.getElementById('res-h').value,a=document.getElementById('res-a').value;
   if(h===''||a===''){document.getElementById('res-fb').innerHTML=`<div class="alert a-warn">Ingresa ambos goles</div>`;return;}
   const m=MATCHES.find(x=>x.id===mid);
-  S.results[mid]=`${parseInt(h)}-${parseInt(a)}`;save();
+  S.results[mid]=`${parseInt(h)}-${parseInt(a)}`;saveSection('results',S.results);
   document.getElementById('res-fb').innerHTML=`<div class="alert a-ok">✓ ${m.h} ${h}-${a} ${m.a} guardado</div>`;
   renderAdmin();
 }
 function deleteResult(){
   const mid=document.getElementById('res-sel').value;if(!mid)return;
-  delete S.results[mid];save();renderAdmin();
+  delete S.results[mid];saveSection('results',S.results);renderAdmin();
 }
 function addPart(){
   const v=document.getElementById('np').value.trim();
   if(!v||S.participants.includes(v))return;
-  S.participants.push(v);save();renderAdmin();
+  S.participants.push(v);saveSection('participants',S.participants);renderAdmin();
 }
 function removePart(n){
   S.participants=S.participants.filter(p=>p!==n);
   if(S.active===n)S.active=S.participants[0]||'';
-  save();renderAdmin();
+  saveSection('participants',S.participants);renderAdmin();
 }
 function saveCfg(){
   const p1=parseInt(document.getElementById('c-p1').value)||0;
@@ -952,13 +1093,13 @@ function saveCfg(){
   S.cfg.pts_exact=parseInt(document.getElementById('c-pts-e').value)||3;
   S.cfg.pts_sign =parseInt(document.getElementById('c-pts-s').value)||1;
   S.cfg.p1=p1;S.cfg.p2=p2;S.cfg.p3=p3;
-  save();alert('✅ Configuración guardada');renderAdmin();
+  saveSection('cfg',S.cfg).then(()=>{alert('✅ Configuración guardada');renderAdmin();});
 }
 async function changePw(){
   const val=document.getElementById('new-pw').value;
   const fb=document.getElementById('pw-chg-fb');
   if(!val||val.length<4){fb.innerHTML=`<span style="color:#a32d2d">Mínimo 4 caracteres</span>`;return;}
-  S.cfg.pw_hash=await sha256(val);S.cfg.pw_set=true;save();
+  S.cfg.pw_hash=await sha256(val);S.cfg.pw_set=true;saveSection('cfg',S.cfg);
   document.getElementById('new-pw').value='';
   fb.innerHTML=`<span style="color:#1a4a0a">✅ Contraseña cambiada</span>`;
 }
@@ -1028,7 +1169,7 @@ function handleFile(file){
       }
 
       if(!S.participants.includes(nombre))S.participants.push(nombre);
-      S.active=nombre;save();
+      S.active=nombre;localStorage.setItem('q26_active',nombre);await save();
       el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} marcadores importados${gpCount?` · ${gpCount} pronósticos de grupos`:''}${bad?` · ${bad} inválidos`:''}.</div>`;
       renderAdmin();
     }catch(err){el.innerHTML=`<div class="alert a-err">Error: ${err.message}</div>`;}
@@ -1036,7 +1177,7 @@ function handleFile(file){
   reader.readAsArrayBuffer(file);
 }
 
-renderTutorial();
+loadFromFirebase();
 </script>
 </body>
 </html>
