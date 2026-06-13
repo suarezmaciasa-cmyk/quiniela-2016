@@ -352,18 +352,43 @@ async function fbPatch(path, data){
 }
 
 // Cargar todos los datos desde Firebase al arrancar
+// Detectar si corre en local (file://) o en servidor
+const IS_LOCAL = location.protocol === 'file:';
+
 async function loadFromFirebase(){
   showLoading(true);
+
+  if(IS_LOCAL){
+    // Modo local: usar localStorage como fallback
+    console.log('Modo local — usando localStorage');
+    S.predictions  = JSON.parse(localStorage.getItem('q26_preds') ||'{}');
+    S.results      = JSON.parse(localStorage.getItem('q26_res')   ||'{}');
+    S.participants = JSON.parse(localStorage.getItem('q26_parts') ||'[]');
+    S.groupPreds   = JSON.parse(localStorage.getItem('q26_grp')   ||'{}');
+    S.cfg          = {...DEF,...JSON.parse(localStorage.getItem('q26_cfg')||'{}')};
+    if(S.active && !S.participants.includes(S.active)) S.active = S.participants[0]||'';
+    S.loaded = true;
+    showLoading(false);
+    setTimeout(()=>{
+      const w = document.createElement('div');
+      w.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#fff3cd;border:1px solid #f0c040;border-radius:10px;padding:10px 18px;font-size:13px;color:#633806;z-index:999;box-shadow:0 2px 12px rgba(0,0,0,.15);white-space:nowrap';
+      w.innerHTML='⚠️ <strong>Modo local</strong> — Los datos no se sincronizan. Sube a GitHub para modo completo.';
+      document.body.appendChild(w); setTimeout(()=>w.remove(),6000);
+    },500);
+    renderTutorial();
+    return;
+  }
+
+  // Modo servidor: usar Firebase
   try {
     const data = await fbGet('');
     if(data){
       S.predictions  = data.predictions  || {};
       S.results      = data.results      || {};
-      S.participants = data.participants || ['Participante 1'];
+      S.participants = data.participants || [];
       S.groupPreds   = data.groupPreds   || {};
       S.cfg          = {...DEF, ...(data.cfg||{})};
     } else {
-      // Primera vez: inicializar con valores por defecto
       S.participants = [];
       await fbSet('cfg', DEF);
     }
@@ -407,9 +432,17 @@ function showLoading(show){
   el.style.display = show ? 'flex' : 'none';
 }
 
-// Guardar todo en Firebase
+// Guardar todo
 async function save(){
   localStorage.setItem('q26_active', S.active);
+  if(IS_LOCAL){
+    localStorage.setItem('q26_preds',  JSON.stringify(S.predictions));
+    localStorage.setItem('q26_res',    JSON.stringify(S.results));
+    localStorage.setItem('q26_parts',  JSON.stringify(S.participants));
+    localStorage.setItem('q26_grp',    JSON.stringify(S.groupPreds));
+    localStorage.setItem('q26_cfg',    JSON.stringify(S.cfg));
+    return;
+  }
   try {
     await fbPatch('', {
       predictions: S.predictions,
@@ -421,9 +454,14 @@ async function save(){
   } catch(e){ console.error('Save error:', e); }
 }
 
-// Guardar solo una sección (más rápido para pronósticos)
+// Guardar solo una sección (más rápido)
 async function saveSection(section, data){
   localStorage.setItem('q26_active', S.active);
+  if(IS_LOCAL){
+    const keyMap={predictions:'q26_preds',results:'q26_res',participants:'q26_parts',groupPreds:'q26_grp',cfg:'q26_cfg'};
+    if(keyMap[section]) localStorage.setItem(keyMap[section], JSON.stringify(data));
+    return;
+  }
   try { await fbSet(section, data); } catch(e){ console.error(e); }
 }
 
@@ -1094,7 +1132,7 @@ function handleFile(file){
   const el=document.getElementById('upload-res');
   el.innerHTML=`<div class="alert a-info">Procesando ${file.name}…</div>`;
   const reader=new FileReader();
-  reader.onload=function(e){
+  reader.onload=async function(e){
     try{
       const wb=XLSX.read(e.target.result,{type:'array'});
 
