@@ -889,32 +889,75 @@ function renderPronos(){
 
   // Clasificación de grupos
   h+=`<div class="card">
-    <div class="sec">1° y 2° lugar por grupo (2 pts cada uno) — elige de la lista ▼</div>
+    <div class="sec">1° y 2° lugar por grupo (2 pts cada uno)
+      ${(()=>{const gp=S.groupPreds[S.active]||{};const gr=S.groupResults||{};
+        let tot=0;Object.keys(GROUPS_DATA).forEach(g=>{
+          const r=gr[g]||{};
+          if(r.p1&&gp[g+'_1']&&gp[g+'_1'].toLowerCase()===r.p1.toLowerCase())tot+=2;
+          if(r.p2&&gp[g+'_2']&&gp[g+'_2'].toLowerCase()===r.p2.toLowerCase())tot+=2;
+        });
+        const done=Object.keys(gr).filter(g=>gr[g]?.p1).length;
+        return done>0?`<span style="font-size:11px;font-weight:500;background:#d4edda;color:#1a4a0a;padding:2px 8px;border-radius:10px;margin-left:6px">${tot} pts sumados de ${done*2*2} posibles</span>`:'';
+      })()}
+    </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:8px">`;
   Object.keys(GROUPS_DATA).forEach(g=>{
     const gp=S.groupPreds[S.active]||{};
+    const gr=S.groupResults||{};
     const col=GROUP_COLORS[g];
     const teams=GROUPS_DATA[g];
     const v1=gp[g+'_1']||'';
     const v2=gp[g+'_2']||'';
+    const real1=(gr[g]?.p1)||'';
+    const real2=(gr[g]?.p2)||'';
+    const hasReal1=!!real1;
+    const hasReal2=!!real2;
+    // Calcular puntos de este grupo para este participante
+    const hit1=hasReal1&&v1&&v1.toLowerCase()===real1.toLowerCase();
+    const hit2=hasReal2&&v2&&v2.toLowerCase()===real2.toLowerCase();
+    const ptsGrp=(hit1?2:0)+(hit2?2:0);
     const opts=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${v1===t?'selected':''}>${t}</option>`).join('')}`;
     const opts2=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${v2===t?'selected':''}>${t}</option>`).join('')}`;
+
+    // Badge de resultado para cada posición
+    const badge1=hasReal1
+      ? (hit1
+          ? `<span style="font-size:10px;background:#d4edda;color:#1a4a0a;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:4px">✓ ${real1} +2pts</span>`
+          : `<span style="font-size:10px;background:#fde8e8;color:#7a1f1f;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:4px">✗ fue ${real1}</span>`)
+      : '';
+    const badge2=hasReal2
+      ? (hit2
+          ? `<span style="font-size:10px;background:#d4edda;color:#1a4a0a;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:4px">✓ ${real2} +2pts</span>`
+          : `<span style="font-size:10px;background:#fde8e8;color:#7a1f1f;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:4px">✗ fue ${real2}</span>`)
+      : '';
+
+    // Header del grupo: mostrar total de puntos si hay resultados reales
+    const grpPtsHdr=(hasReal1||hasReal2)
+      ? `<span style="font-size:10px;background:rgba(255,255,255,.2);padding:1px 7px;border-radius:10px;margin-left:6px">${ptsGrp} pts</span>`
+      : '';
+
     h+=`<div style="border:1px solid #e0e0d8;border-radius:8px;overflow:hidden">
-      <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px">Grupo ${g} — ${teams.join(', ')}</div>
+      <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px;display:flex;align-items:center;justify-content:space-between">
+        <span>Grupo ${g} — ${teams.join(', ')}</span>${grpPtsHdr}
+      </div>
       <div style="padding:6px 10px">
         <div class="group-pred-row">
           <div class="group-pred-lbl">🥇 1er lugar</div>
-          ${locked
-            ? `<div class="select-locked">${v1||'—'}</div>`
-            : `<select class="group-pred-input" onchange="setGroupPred('${g}','1',this.value)">${opts}</select>`}
-          <div class="group-pred-pts">2 pts</div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px">
+            ${locked
+              ? `<div class="select-locked">${v1||'—'}</div>`
+              : `<select class="group-pred-input" onchange="setGroupPred('${g}','1',this.value)">${opts}</select>`}
+            ${badge1}
+          </div>
         </div>
         <div class="group-pred-row">
           <div class="group-pred-lbl">🥈 2do lugar</div>
-          ${locked
-            ? `<div class="select-locked">${v2||'—'}</div>`
-            : `<select class="group-pred-input" onchange="setGroupPred('${g}','2',this.value)">${opts2}</select>`}
-          <div class="group-pred-pts">2 pts</div>
+          <div style="flex:1;display:flex;align-items:center;gap:4px">
+            ${locked
+              ? `<div class="select-locked">${v2||'—'}</div>`
+              : `<select class="group-pred-input" onchange="setGroupPred('${g}','2',this.value)">${opts2}</select>`}
+            ${badge2}
+          </div>
         </div>
       </div>
     </div>`;
@@ -1552,6 +1595,12 @@ function renderLiguilla(){
       <div class="prog-lbl"><span>${predCount}/${LIGUILLA_MATCHES.length} pronósticos</span><span>${resCount} resultados cargados</span></div>`;
 
   h+=`<div class="alert a-ok" style="margin-top:.4rem">⚽ <strong>16avos de final</strong> — ✅ Los 16 cruces están confirmados · Del 28 Jun al 3 Jul</div>`;
+  h+=`<div style="background:#EAD9F7;border:0.5px solid #c5a8f0;border-radius:10px;padding:10px 14px;font-size:12px;color:#3d1a6e;margin-top:.4rem;line-height:1.7">
+    <strong>⚽ ¿Cómo funcionan los penales?</strong><br>
+    Solo pronósticas el marcador al final del tiempo regular + tiempo extra (90+30 min).<br>
+    Los penales no se pronostican — solo determinan quién avanza pero no cambian el marcador oficial.<br>
+    <span style="background:rgba(255,255,255,.5);padding:2px 8px;border-radius:6px;margin-right:6px">Ej: España 1-1 Austria → van a penales → <strong>si pronosticaste 1-1 ganas 3 pts ✓</strong></span>
+  </div>`;
   if(locked) h+=`<div class="locked-banner"><span class="lock-icon">🔒</span><div><strong>Pronósticos bloqueados</strong> — Ya tienes pronósticos guardados. El admin puede reemplazarlos subiendo un nuevo Excel de liguilla.</div></div>`;
   const rondas=[...new Set(LIGUILLA_MATCHES.map(m=>m.ronda))];
   rondas.forEach(ronda=>{
