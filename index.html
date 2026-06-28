@@ -175,6 +175,14 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
 .group-pred-pts{font-size:11px;padding:2px 7px;border-radius:4px;background:#d4edda;color:#1a4a0a;font-weight:700;white-space:nowrap}
 
 @media(max-width:560px){.prem-grid{grid-template-columns:1fr}.mrow{grid-template-columns:1fr 110px 1fr}.pts-showcase{grid-template-columns:1fr}.hero-stats{gap:1.2rem}}
+/* ── LIGUILLA ── */
+.lig-score-in{width:32px;height:28px;border:1px solid #ccc;border-radius:6px;text-align:center;font-size:13px;font-weight:700;font-family:inherit;background:#fff9e6;padding:0}
+.lig-score-in:disabled{background:#f8fdf8;border-color:#d4edda;color:#2d6a1a;cursor:default}
+.lig-dash{font-size:13px;font-weight:700;color:#ccc}
+.lig-score-wrap{display:flex;align-items:center;gap:3px}
+.lig-conf{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700}
+.lig-conf.confirmed{background:#d4edda;color:#1a4a0a}
+.lig-conf.pending{background:#fff3cd;color:#633806}
 </style>
 </head>
 <body>
@@ -187,14 +195,18 @@ body{font-family:system-ui,sans-serif;background:#f5f5f0;color:#1a1a1a;min-heigh
     <button class="tab active"        onclick="showTab('tutorial')">📋 Cómo jugar</button>
     <button class="tab"               onclick="showTab('pronos')">Pronósticos</button>
     <button class="tab"               onclick="showTab('grupos')">Grupos</button>
-    <button class="tab"               onclick="showTab('ranking')">Ranking</button>
+    <button class="tab"               onclick="showTab('ranking')">📊 Ranking FG</button>
+    <button class="tab"               onclick="showTab('rankinglig')">🏆 Ranking Liguilla</button>
     <button class="tab"               onclick="showTab('premios')">Premios</button>
+    <button class="tab" onclick="showTab('liguilla')">🏆 Liguilla</button>
     <button class="tab tab-admin-btn" id="tab-admin-btn" onclick="tryAdmin()">Admin</button>
   </div>
   <div id="t-tutorial"></div>
   <div id="t-pronos"  style="display:none"></div>
   <div id="t-grupos"  style="display:none"></div>
-  <div id="t-ranking" style="display:none"></div>
+  <div id="t-liguilla"    style="display:none"></div>
+  <div id="t-ranking"    style="display:none"></div>
+  <div id="t-rankinglig" style="display:none"></div>
   <div id="t-premios" style="display:none"></div>
   <div id="t-admin"   style="display:none"></div>
 </div>
@@ -328,6 +340,11 @@ const S={
   active: localStorage.getItem('q26_active')||'',
   cfg:{...DEF},
   adminUnlocked:false, tab:'tutorial', tutorialStep:0,
+  ligPreds:{}, ligResults:{}, ligLocked:false,
+  groupResults:{},  // {A:{p1:'México',p2:'Corea del Sur'}, ...}
+  snapshotFG:null,   // {nombre: pts_total, ...} — se guarda al cerrar fase de grupos
+  awardPreds:{},     // {nombre: {campeon,subcampeon,ter,cto,balon,guante,bota,joven,goleadorMex,lugarMex,fairplay}}
+  awardResults:{},   // resultados reales de premios ingresados por admin
   loaded:false
 };
 
@@ -365,6 +382,12 @@ async function loadFromFirebase(){
     S.results      = JSON.parse(localStorage.getItem('q26_res')   ||'{}');
     S.participants = JSON.parse(localStorage.getItem('q26_parts') ||'[]');
     S.groupPreds   = JSON.parse(localStorage.getItem('q26_grp')   ||'{}');
+    S.ligPreds     = JSON.parse(localStorage.getItem('q26_lig')   ||'{}');
+    S.ligResults   = JSON.parse(localStorage.getItem('q26_ligres')||'{}');
+    S.groupResults = JSON.parse(localStorage.getItem('q26_gres')  ||'{}');
+    S.snapshotFG   = JSON.parse(localStorage.getItem('q26_snap')  ||'null');
+    S.awardPreds   = JSON.parse(localStorage.getItem('q26_awd')   ||'{}');
+    S.awardResults = JSON.parse(localStorage.getItem('q26_awdres')||'{}');
     S.cfg          = {...DEF,...JSON.parse(localStorage.getItem('q26_cfg')||'{}')};
     if(S.active && !S.participants.includes(S.active)) S.active = S.participants[0]||'';
     S.loaded = true;
@@ -387,6 +410,12 @@ async function loadFromFirebase(){
       S.results      = data.results      || {};
       S.participants = data.participants || [];
       S.groupPreds   = data.groupPreds   || {};
+      S.ligPreds     = data.ligPreds      || {};
+      S.ligResults   = data.ligResults    || {};
+      S.groupResults = data.groupResults  || {};
+      S.snapshotFG   = data.snapshotFG     || null;
+      S.awardPreds   = data.awardPreds     || {};
+      S.awardResults = data.awardResults   || {};
       S.cfg          = {...DEF, ...(data.cfg||{})};
     } else {
       S.participants = [];
@@ -413,6 +442,11 @@ function startLiveSync(){
       if(parts) S.participants = parts;
       if(preds) S.predictions = preds;
       if(gp) S.groupPreds = gp;
+      const lr=await fbGet('ligResults'); if(lr) S.ligResults=lr;
+      const gres=await fbGet('groupResults'); if(gres) S.groupResults=gres;
+      const snap=await fbGet('snapshotFG'); if(snap) S.snapshotFG=snap;
+      const awd=await fbGet('awardResults'); if(awd) S.awardResults=awd;
+      const lp=await fbGet('ligPreds'); if(lp) S.ligPreds=lp;
       if(S.tab==='ranking') renderRanking();
       if(S.tab==='premios') renderPremios();
       if(S.tab==='pronos') renderPronos();
@@ -449,6 +483,12 @@ async function save(){
       results: S.results,
       participants: S.participants,
       groupPreds: S.groupPreds,
+      ligPreds: S.ligPreds,
+      ligResults: S.ligResults,
+      groupResults: S.groupResults,
+      snapshotFG: S.snapshotFG,
+      awardPreds: S.awardPreds,
+      awardResults: S.awardResults,
       cfg: S.cfg
     });
   } catch(e){ console.error('Save error:', e); }
@@ -458,7 +498,7 @@ async function save(){
 async function saveSection(section, data){
   localStorage.setItem('q26_active', S.active);
   if(IS_LOCAL){
-    const keyMap={predictions:'q26_preds',results:'q26_res',participants:'q26_parts',groupPreds:'q26_grp',cfg:'q26_cfg'};
+    const keyMap={predictions:'q26_preds',results:'q26_res',participants:'q26_parts',groupPreds:'q26_grp',ligPreds:'q26_lig',ligResults:'q26_ligres',groupResults:'q26_gres',snapshotFG:'q26_snap',awardPreds:'q26_awd',awardResults:'q26_awdres',cfg:'q26_cfg'};
     if(keyMap[section]) localStorage.setItem(keyMap[section], JSON.stringify(data));
     return;
   }
@@ -487,8 +527,33 @@ function calcPts(participant){
   });
   return{pts,exact,partial,total};
 }
+// ── PUNTOS DE CLASIFICACIÓN DE GRUPOS ───────────────────────────
+function calcPtsGrupos(participant){
+  const gp = S.groupPreds[participant] || {};
+  const gr = S.groupResults || {};
+  let pts=0, hits=0;
+  Object.keys(GROUPS_DATA).forEach(g=>{
+    const res = gr[g] || {};
+    const pred1 = gp[g+'_1'] || '';
+    const pred2 = gp[g+'_2'] || '';
+    if(res.p1 && pred1 && pred1===res.p1){ pts+=2; hits++; }
+    if(res.p2 && pred2 && pred2===res.p2){ pts+=2; hits++; }
+  });
+  return {pts, hits};
+}
+
 function getRanking(){
-  return S.participants.map(p=>({name:p,...calcPts(p)})).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
+  return S.participants.map(p=>{
+    const mp=calcPts(p);
+    const gp=calcPtsGrupos(p);
+    const ap=calcPtsAwards(p);
+    // Si existe snapshot, usar puntos congelados de fase grupos + premios en tiempo real
+    const basePts = S.snapshotFG ? (S.snapshotFG[p]||0) : (mp.pts+gp.pts);
+    const total   = basePts + ap.pts;
+    return {name:p,...mp, ptsGrupos:gp.pts, hitsGrupos:gp.hits,
+            ptsAwards:ap.pts, hitsAwards:ap.hits,
+            total, fromSnapshot:!!S.snapshotFG};
+  }).sort((a,b)=>b.total-a.total||b.pts-a.pts||b.exact-a.exact);
 }
 
 // ── BLOQUEO: un participante está bloqueado si ya tiene pronósticos cargados ──
@@ -529,13 +594,13 @@ function lockAdmin(){S.adminUnlocked=false;document.getElementById('tab-admin-bt
 function showTab(tab){
   if(tab==='admin'&&!S.adminUnlocked){tryAdmin();return;}
   S.tab=tab;
-  ['tutorial','pronos','grupos','ranking','premios','admin'].forEach(t=>{
+  ['tutorial','pronos','grupos','liguilla','ranking','rankinglig','premios','admin'].forEach(t=>{
     document.getElementById('t-'+t).style.display=t===tab?'':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i)=>{
-    el.classList.toggle('active',['tutorial','pronos','grupos','ranking','premios','admin'][i]===tab);
+    el.classList.toggle('active',['tutorial','pronos','grupos','liguilla','ranking','rankinglig','premios','admin'][i]===tab);
   });
-  ({tutorial:renderTutorial,pronos:renderPronos,grupos:renderGrupos,ranking:renderRanking,premios:renderPremios,admin:renderAdmin})[tab]();
+  ({tutorial:renderTutorial,pronos:renderPronos,grupos:renderGrupos,liguilla:renderLiguilla,ranking:renderRanking,rankinglig:renderRankingLig,premios:renderPremios,admin:renderAdmin})[tab]();
 }
 
 // ══════════════════════════════════════════════════
@@ -944,16 +1009,31 @@ function renderRanking(){
   const el=document.getElementById('t-ranking');
   const rk=getRanking();
   const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
-  let h=`<div class="alert a-info">Partidos con resultado: <strong>${resCount}/48</strong> · Exacto: <strong>${S.cfg.pts_exact} pts</strong> · Ganador: <strong>${S.cfg.pts_sign} pt</strong></div>`;
-  if(!resCount){h+=`<div class="empty">El ranking aparece cuando el admin ingrese resultados.</div>`;el.innerHTML=h;return;}
-  const maxPts=rk[0]?.pts||1;
+  const grCount=Object.keys(S.groupResults||{}).filter(g=>S.groupResults[g]?.p1).length;
+  const snapActive = !!S.snapshotFG;
+  let h=`<div class="alert ${snapActive?'a-ok':'a-info'}">
+    ${snapActive
+      ? `🔒 <strong>Fase de grupos cerrada</strong> — Puntos congelados · <span style="font-size:11px">Premios individuales se suman al final</span>`
+      : `Partidos: <strong>${resCount}/72</strong> · Exacto: <strong>${S.cfg.pts_exact}pts</strong> · Ganador: <strong>${S.cfg.pts_sign}pt</strong> · Grupos: <strong>${grCount}/12</strong>`}
+  </div>
+  <div class="alert a-info" style="font-size:12px;margin-top:-4px">
+    📊 Este ranking incluye: partidos fase de grupos + clasificados de grupo + premios individuales
+  </div>`;
+  if(!resCount&&!grCount){h+=`<div class="empty">El ranking aparece cuando el admin ingrese resultados.</div>`;el.innerHTML=h;return;}
+  const maxPts=rk[0]?.total||1;
   h+=`<div class="card">`;
   rk.forEach((p,i)=>{
+    const pct=Math.round(p.total/maxPts*100);
     h+=`<div class="rnk-item">
       <div class="rnk-pos ${['p1','p2','p3'][i]||''}">${i+1}</div>
-      <div class="rnk-name">${p.name}</div>
-      <div class="rnk-bar-w"><div class="rnk-bar" style="width:${Math.round(p.pts/maxPts*100)}%"></div></div>
-      <div class="rnk-pts"><strong>${p.pts}</strong>${p.exact}e ${p.partial}g/${p.total}</div>
+      <div class="rnk-name">
+        ${p.name}
+        <div style="font-size:10px;color:#888;margin-top:1px">
+          Partidos: ${p.pts}pts · Grupos: ${p.ptsGrupos}pts · Premios: ${p.ptsAwards}pts
+        </div>
+      </div>
+      <div class="rnk-bar-w"><div class="rnk-bar" style="width:${pct}%"></div></div>
+      <div class="rnk-pts"><strong>${p.total}</strong><span style="font-size:10px">total</span></div>
     </div>`;
   });
   h+=`</div>`;el.innerHTML=h;
@@ -1029,6 +1109,68 @@ function renderAdmin(){
     </div>
     <div id="res-fb"></div>
   </div>`;
+  // ── Resultados de clasificación de grupos ──
+  const gr=S.groupResults||{};
+  const grDone=Object.keys(gr).filter(g=>gr[g]?.p1).length;
+  h+=`<div class="card">
+    <div class="sec">Clasificados por grupo (${grDone}/12 ingresados) — 2 pts cada acierto</div>
+    <div class="alert a-info" style="font-size:12px">Ingresa quién quedó 1° y 2° en cada grupo al terminar la fase de grupos. Esto calcula puntos automáticamente para todos.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;margin-bottom:8px">
+      ${Object.keys(GROUPS_DATA).map(g=>{
+        const r=gr[g]||{}; const col=GROUP_COLORS[g]; const teams=GROUPS_DATA[g];
+        const opts1=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${r.p1===t?'selected':''}>${t}</option>`).join('')}`;
+        const opts2=`<option value="">— elige —</option>${teams.map(t=>`<option value="${t}" ${r.p2===t?'selected':''}>${t}</option>`).join('')}`;
+        const done=r.p1&&r.p2;
+        return `<div style="border:1px solid #e0e0d8;border-radius:8px;overflow:hidden">
+          <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px;display:flex;justify-content:space-between">
+            <span>Grupo ${g}</span>${done?'<span style="font-size:10px;background:rgba(255,255,255,.25);padding:1px 6px;border-radius:10px">✓</span>':''}
+          </div>
+          <div style="padding:6px 10px">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px">
+              <span style="min-width:60px;font-weight:700;color:#555">🥇 1° lugar</span>
+              <select class="adm-sel" style="margin:0;flex:1" onchange="saveGroupResult('${g}','p1',this.value)">${opts1}</select>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+              <span style="min-width:60px;font-weight:700;color:#555">🥈 2° lugar</span>
+              <select class="adm-sel" style="margin:0;flex:1" onchange="saveGroupResult('${g}','p2',this.value)">${opts2}</select>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // ── Cerrar Fase de Grupos ──────────────────────────
+  const snapExists = !!S.snapshotFG;
+  const snapDate   = S.snapshotFG?._fecha || '';
+  h+=`<div class="card" style="border:${snapExists?'2px solid #2d6a1a':'2px dashed #ccc'}">
+    <div class="sec" style="color:${snapExists?'#2d6a1a':'#888'}">
+      ${snapExists?'✅ Fase de grupos cerrada':'🔒 Cerrar fase de grupos'}
+    </div>
+    ${snapExists
+      ? `<div class="alert a-ok" style="margin-bottom:8px">
+           Los puntos de la fase de grupos están congelados desde el <strong>${snapDate}</strong>.
+           El ranking usa estos puntos fijos. Los puntos de liguilla se suman encima.
+         </div>
+         <div style="font-size:12px;margin-bottom:8px">
+           <strong>Puntos guardados:</strong><br>
+           ${Object.entries(S.snapshotFG)
+               .filter(([k])=>k!=='_fecha')
+               .sort((a,b)=>b[1]-a[1])
+               .map(([nombre,pts])=>`<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;background:#f0f0e8;border-radius:12px;font-size:12px"><strong>${nombre}</strong>: ${pts} pts</span>`)
+               .join('')}
+         </div>
+         <button class="btn btn-red" style="font-size:12px" onclick="resetSnapshot()">⚠️ Reabrir (borrar snapshot)</button>`
+      : `<div style="font-size:13px;color:#666;margin-bottom:10px;line-height:1.6">
+           Cuando terminen todos los partidos y hayas ingresado los clasificados de grupo, 
+           haz clic aquí para <strong>congelar los puntos</strong> de la fase de grupos.
+           A partir de ahí el ranking sumará estos puntos + los de liguilla.
+         </div>
+         <button class="btn btn-blue" onclick="cerrarFaseGrupos()">🔒 Cerrar y guardar puntos de fase de grupos</button>
+         <div id="snap-fb" style="margin-top:8px;font-size:12px"></div>`
+    }
+  </div>`;
+
   h+=`<div class="card">
     <div class="sec">Participantes (${S.participants.length})</div>
     <div class="chip-wrap">${S.participants.map(p=>`<span class="chip">${p} <span onclick="removePart('${p}')" style="cursor:pointer;color:#a32d2d;font-weight:700;margin-left:2px">×</span></span>`).join('')}</div>
@@ -1051,6 +1193,24 @@ function renderAdmin(){
     <div class="divider"></div>
     <button class="btn btn-blue" onclick="saveCfg()">💾 Guardar</button>
   </div>`;
+  // ── Resultados reales de premios ──────────────────────────
+  const ar=S.awardResults||{};
+  h+=`<div class="card">
+    <div class="sec">Resultados de premios individuales (admin)</div>
+    <div class="alert a-info" style="font-size:12px">Ingresa los ganadores reales cuando se conozcan. Esto suma puntos automáticamente a quien acertó.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px">
+      ${AWARD_KEYS.map(({key,label,pts})=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f0">
+          <div style="font-size:12px;font-weight:700;flex:1">${label}<br><span style="font-weight:400;color:#888;font-size:10px">${pts} pts</span></div>
+          <input class="adm-inp" style="width:130px;font-size:12px" 
+            placeholder="Ganador real..." 
+            value="${ar[key]||''}"
+            onchange="saveAwardResult('${key}',this.value)"
+            id="awr_${key}">
+        </div>`).join('')}
+    </div>
+  </div>`;
+
   h+=`<div class="card">
     <div class="sec">Cambiar contraseña</div>
     <div style="display:flex;gap:8px">
@@ -1061,6 +1221,91 @@ function renderAdmin(){
   </div>`;
   el.innerHTML=h;
   document.getElementById('res-sel').addEventListener('change',fillResult);
+}
+
+// ── PUNTOS DE PREMIOS INDIVIDUALES ──────────────────────────────
+const AWARD_KEYS = [
+  {key:'campeon',    pts:10, label:'🥇 Campeón'},
+  {key:'subcampeon', pts:5,  label:'🥈 Subcampeón'},
+  {key:'ter',        pts:5,  label:'🥉 3er Lugar'},
+  {key:'cto',        pts:5,  label:'4° Lugar'},
+  {key:'balon',      pts:5,  label:'🏆 Balón de Oro'},
+  {key:'guante',     pts:5,  label:'🧤 Guante de Oro'},
+  {key:'bota',       pts:5,  label:'👟 Bota de Oro'},
+  {key:'joven',      pts:5,  label:'🌟 Mejor Joven'},
+  {key:'goleadorMex',pts:5,  label:'⚽ Goleador México'},
+  {key:'lugarMex',   pts:5,  label:'🌍 Lugar México'},
+  {key:'fairplay',   pts:5,  label:'🤝 Fair Play'},
+];
+
+// ── PUNTOS DE LIGUILLA ────────────────────────────────────────────
+function calcPtsLiguilla(participant){
+  const allPreds = S.ligPreds || {};
+  const pp = allPreds[participant] || {};
+  const res = S.ligResults || {};
+  let pts=0, exact=0, sign=0, total=0;
+  LIGUILLA_MATCHES.forEach(m=>{
+    const pr  = parseScore(pp[m.id]);
+    const re  = parseScore(res[m.id]);
+    if(!pr||!re) return;
+    total++;
+    if(pr.h===re.h&&pr.a===re.a){pts+=S.cfg.pts_exact;exact++;}
+    else if((pr.h>pr.a&&re.h>re.a)||(pr.h<pr.a&&re.h<re.a)){pts+=S.cfg.pts_sign;sign++;}
+  });
+  return{pts,exact,sign,total};
+}
+
+function calcPtsAwards(participant){
+  const pred = S.awardPreds[participant] || {};
+  const res  = S.awardResults || {};
+  let pts=0, hits=0;
+  AWARD_KEYS.forEach(({key,pts:p})=>{
+    if(res[key] && pred[key] && 
+       res[key].trim().toLowerCase() === pred[key].trim().toLowerCase()){
+      pts+=p; hits++;
+    }
+  });
+  return {pts, hits};
+}
+
+async function cerrarFaseGrupos(){
+  const rk=getRanking();
+  const total_partidos=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
+  if(total_partidos < 72){
+    const ok=confirm(`Todavía faltan ${72-total_partidos} partidos sin resultado. ¿Cerrar de todas formas?`);
+    if(!ok) return;
+  }
+  const grDone=Object.keys(S.groupResults||{}).filter(g=>S.groupResults[g]?.p1).length;
+  if(grDone < 12){
+    const ok=confirm(`Solo tienes ${grDone}/12 clasificados de grupo ingresados. ¿Cerrar de todas formas?`);
+    if(!ok) return;
+  }
+  const snap={_fecha: new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'})};
+  rk.forEach(p=>{ snap[p.name]=p.total; });
+  S.snapshotFG=snap;
+  await saveSection('snapshotFG', snap);
+  document.getElementById('snap-fb').innerHTML='<span style="color:#1a4a0a">✅ Puntos guardados correctamente</span>';
+  setTimeout(()=>renderAdmin(), 800);
+}
+
+async function resetSnapshot(){
+  if(!confirm('¿Segura que quieres borrar el snapshot? Los puntos se recalcularán en tiempo real.')) return;
+  S.snapshotFG=null;
+  await saveSection('snapshotFG', null);
+  renderAdmin();
+}
+
+function saveAwardResult(key, val){
+  if(!S.awardResults) S.awardResults={};
+  S.awardResults[key]=val.trim();
+  saveSection('awardResults', S.awardResults);
+}
+
+function saveGroupResult(g, pos, val){
+  if(!S.groupResults[g]) S.groupResults[g]={};
+  S.groupResults[g][pos]=val;
+  saveSection('groupResults', S.groupResults);
+  renderAdmin(); // refrescar checkmarks
 }
 
 function recalcPcts(){
@@ -1173,28 +1418,283 @@ function handleFile(file){
       // Cada grupo ocupa 1 fila; orden A,B,C,...L = filas 8..19
       const ws2=wb.Sheets['Pronósticos Iniciales'];
       if(!S.groupPreds[nombre])S.groupPreds[nombre]={};
-      let gpCount=0;
+      if(!S.awardPreds[nombre])S.awardPreds[nombre]={};
+      let gpCount=0, awCount=0;
       if(ws2){
+        // ── 1°/2° de grupo (filas 7-18, índices 6-17) ──
         const groups=Object.keys(GROUPS_DATA);
         groups.forEach((g,gi)=>{
-          // Grupos empiezan en fila 7 (idx 6): A=fila7, B=fila8 ... L=fila18
           const dataRow=6+gi;
-          const c1=ws2[XLSX.utils.encode_cell({r:dataRow,c:1})]; // col B = 1° lugar
-          const c2=ws2[XLSX.utils.encode_cell({r:dataRow,c:4})]; // col E = 2° lugar
+          const c1=ws2[XLSX.utils.encode_cell({r:dataRow,c:1})];
+          const c2=ws2[XLSX.utils.encode_cell({r:dataRow,c:4})];
           const v1=c1&&c1.v!==undefined?String(c1.v).trim():'';
           const v2=c2&&c2.v!==undefined?String(c2.v).trim():'';
           if(v1&&!v1.includes('←')&&!v1.includes('Grp')&&!v1.includes('Grupo')){S.groupPreds[nombre][g+'_1']=v1;gpCount++;}
           if(v2&&!v2.includes('←')&&!v2.includes('Grp')&&!v2.includes('Grupo')){S.groupPreds[nombre][g+'_2']=v2;gpCount++;}
         });
+
+        // ── TOP 4 (filas 22-23, índices 21-22) ──
+        // Fila 22(idx21): col B=Campeón, col E=3er Lugar
+        // Fila 23(idx22): col B=Subcampeón, col E=4° Lugar
+        const top4map=[
+          {r:21,cL:1,key:'campeon'},{r:21,cL:4,key:'ter'},
+          {r:22,cL:1,key:'subcampeon'},{r:22,cL:4,key:'cto'},
+        ];
+        top4map.forEach(({r,cL,key})=>{
+          const c=ws2[XLSX.utils.encode_cell({r,c:cL})];
+          const v=c&&c.v?String(c.v).trim():'';
+          if(v&&!v.includes('←')&&!v.includes('Gan')&&!v.includes('Lugar')){
+            S.awardPreds[nombre][key]=v; awCount++;
+          }
+        });
+
+        // ── PREMIOS INDIVIDUALES (filas 28-29, índices 27-28) ──
+        // Fila 28(idx27): col B=Balón Oro, col E=Guante Oro
+        // Fila 29(idx28): col B=Bota Oro,  col E=Mejor Joven
+        const awardsMap=[
+          {r:27,cL:1,key:'balon'},{r:27,cL:4,key:'guante'},
+          {r:28,cL:1,key:'bota'},{r:28,cL:4,key:'joven'},
+        ];
+        awardsMap.forEach(({r,cL,key})=>{
+          const c=ws2[XLSX.utils.encode_cell({r,c:cL})];
+          const v=c&&c.v?String(c.v).trim():'';
+          if(v&&!v.includes('←')){S.awardPreds[nombre][key]=v; awCount++;}
+        });
+
+        // ── SELECCIÓN MEXICANA (fila 33, índice 32) ──
+        // col B=Goleador México, col E=Lugar México
+        const mexCells=[{r:32,cL:1,key:'goleadorMex'},{r:32,cL:4,key:'lugarMex'}];
+        mexCells.forEach(({r,cL,key})=>{
+          const c=ws2[XLSX.utils.encode_cell({r,c:cL})];
+          const v=c&&c.v?String(c.v).trim():'';
+          if(v&&!v.includes('←')&&!v.includes('Pronóstico')){S.awardPreds[nombre][key]=v; awCount++;}
+        });
+
+        // ── FAIR PLAY (fila 36, índice 35) col B ──
+        const fpCell=ws2[XLSX.utils.encode_cell({r:35,c:1})];
+        const fpVal=fpCell&&fpCell.v?String(fpCell.v).trim():'';
+        if(fpVal&&!fpVal.includes('←')&&!fpVal.includes('País')){
+          S.awardPreds[nombre].fairplay=fpVal; awCount++;
+        }
       }
 
       if(!S.participants.includes(nombre))S.participants.push(nombre);
       S.active=nombre;localStorage.setItem('q26_active',nombre);await save();
-      el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} marcadores importados${gpCount?` · ${gpCount} pronósticos de grupos`:''}${bad?` · ${bad} inválidos`:''}.</div>`;
+      el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} marcadores · ${gpCount} clasificados de grupo · ${awCount} premios importados${bad?` · ${bad} inválidos`:''}.</div>`;
       renderAdmin();
     }catch(err){el.innerHTML=`<div class="alert a-err">Error: ${err.message}</div>`;}
   };
   reader.readAsArrayBuffer(file);
+}
+
+// ── LIGUILLA ─────────────────────────────────────────────────────
+const LIGUILLA_MATCHES = [
+  // 16 CRUCES CONFIRMADOS — fuente: FIFA/La Nación 27 Jun 2026
+  {id:'r01',ronda:'16avos',fecha:'28 Jun',hora:'13:00',local:'Sudáfrica',       visita:'Canadá',               conf:true},
+  {id:'r02',ronda:'16avos',fecha:'29 Jun',hora:'12:00',local:'Brasil',           visita:'Japón',                conf:true},
+  {id:'r03',ronda:'16avos',fecha:'29 Jun',hora:'15:30',local:'Alemania',         visita:'Paraguay',             conf:true},
+  {id:'r04',ronda:'16avos',fecha:'29 Jun',hora:'20:00',local:'Países Bajos',     visita:'Marruecos',            conf:true},
+  {id:'r05',ronda:'16avos',fecha:'30 Jun',hora:'12:00',local:'Costa de Marfil',  visita:'Noruega',              conf:true},
+  {id:'r06',ronda:'16avos',fecha:'30 Jun',hora:'16:00',local:'Francia',          visita:'Suecia',               conf:true},
+  {id:'r07',ronda:'16avos',fecha:'30 Jun',hora:'20:00',local:'México',           visita:'Ecuador',              conf:true},
+  {id:'r08',ronda:'16avos',fecha:'01 Jul',hora:'11:00',local:'Inglaterra',       visita:'Rep. D. del Congo',    conf:true},
+  {id:'r09',ronda:'16avos',fecha:'01 Jul',hora:'15:00',local:'Estados Unidos',   visita:'Bosnia y Herzegovina', conf:true},
+  {id:'r10',ronda:'16avos',fecha:'01 Jul',hora:'19:00',local:'Bélgica',          visita:'Senegal',              conf:true},
+  {id:'r11',ronda:'16avos',fecha:'02 Jul',hora:'14:00',local:'España',           visita:'Austria',              conf:true},
+  {id:'r12',ronda:'16avos',fecha:'02 Jul',hora:'18:00',local:'Portugal',         visita:'Croacia',              conf:true},
+  {id:'r13',ronda:'16avos',fecha:'03 Jul',hora:'13:00',local:'Australia',        visita:'Egipto',               conf:true},
+  {id:'r14',ronda:'16avos',fecha:'03 Jul',hora:'17:00',local:'Argentina',        visita:'Cabo Verde',           conf:true},
+  {id:'r15',ronda:'16avos',fecha:'03 Jul',hora:'20:30',local:'Colombia',         visita:'Ghana',                conf:true},
+  {id:'r16',ronda:'16avos',fecha:'03 Jul',hora:'22:00',local:'Suiza',            visita:'Argelia',              conf:true},
+  {id:'o01',ronda:'Octavos',fecha:'5 Jul',local:'Gan. R01/R02',visita:'Gan. R03/R04',conf:false},
+  {id:'o02',ronda:'Octavos',fecha:'5 Jul',local:'Gan. R05/R06',visita:'Gan. R07/R08',conf:false},
+  {id:'o03',ronda:'Octavos',fecha:'6 Jul',local:'Gan. R09/R10',visita:'Gan. R11/R12',conf:false},
+  {id:'o04',ronda:'Octavos',fecha:'6 Jul',local:'Gan. R13/R14',visita:'Gan. R15/R16',conf:false},
+  {id:'o05',ronda:'Octavos',fecha:'7 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'o06',ronda:'Octavos',fecha:'7 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'o07',ronda:'Octavos',fecha:'8 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'o08',ronda:'Octavos',fecha:'8 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'c01',ronda:'Cuartos',fecha:'11 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'c02',ronda:'Cuartos',fecha:'11 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'c03',ronda:'Cuartos',fecha:'12 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'c04',ronda:'Cuartos',fecha:'12 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  {id:'s01',ronda:'Semis',fecha:'15 Jul',local:'Gan. Cuartos',visita:'Gan. Cuartos',conf:false},
+  {id:'s02',ronda:'Semis',fecha:'16 Jul',local:'Gan. Cuartos',visita:'Gan. Cuartos',conf:false},
+  {id:'t01',ronda:'3er Lugar',fecha:'19 Jul',local:'Perd. Semi 1',visita:'Perd. Semi 2',conf:false},
+  {id:'f01',ronda:'Final',fecha:'19 Jul',local:'Gan. Semi 1',visita:'Gan. Semi 2',conf:false},
+];
+
+const RONDA_COLORS={
+  '16avos':{bg:'#F4901A',light:'#FDE9C8'},
+  'Octavos':{bg:'#5B2C8C',light:'#EAD9F7'},
+  'Cuartos':{bg:'#1A5FA8',light:'#D6E4F7'},
+  'Semis':{bg:'#2D6A1A',light:'#E4F7D6'},
+  '3er Lugar':{bg:'#4A4A4A',light:'#F2F2F2'},
+  'Final':{bg:'#A32D2D',light:'#FDECEA'},
+};
+
+function renderLiguilla(){
+  const el=document.getElementById('t-liguilla');
+  // ligPreds es ahora por participante: {nombre: {mid: score}}
+  const allPreds=S.ligPreds||{};
+  const preds=allPreds[S.active]||{};
+  const locked=Object.keys(preds).length>0; // bloqueado si ya tiene pronósticos
+  const predCount=LIGUILLA_MATCHES.filter(m=>parseScore(preds[m.id])).length;
+  const resCount=LIGUILLA_MATCHES.filter(m=>S.ligResults&&S.ligResults[m.id]).length;
+  let h='';
+
+  // Chips de participantes
+  h+=`<div class="alert a-info">Pronósticos de: <strong>${S.active||'—'}</strong></div>`;
+  h+=`<div class="chip-wrap">${S.participants.map(p=>`<span class="chip ${p===S.active?'active':''}" onclick="S.active='${p}';localStorage.setItem('q26_active','${p}');renderLiguilla()">${p}</span>`).join('')}</div>`;
+
+  // Barra de progreso
+  h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/LIGUILLA_MATCHES.length*100)}%"></div></div>
+      <div class="prog-lbl"><span>${predCount}/${LIGUILLA_MATCHES.length} pronósticos</span><span>${resCount} resultados cargados</span></div>`;
+
+  h+=`<div class="alert a-ok" style="margin-top:.4rem">⚽ <strong>16avos de final</strong> — ✅ Los 16 cruces están confirmados · Del 28 Jun al 3 Jul</div>`;
+  if(locked) h+=`<div class="locked-banner"><span class="lock-icon">🔒</span><div><strong>Pronósticos bloqueados</strong> — Ya tienes pronósticos guardados. El admin puede reemplazarlos subiendo un nuevo Excel de liguilla.</div></div>`;
+  const rondas=[...new Set(LIGUILLA_MATCHES.map(m=>m.ronda))];
+  rondas.forEach(ronda=>{
+    const matches=LIGUILLA_MATCHES.filter(m=>m.ronda===ronda);
+    const col=RONDA_COLORS[ronda]||{bg:'#4A4A4A',light:'#F2F2F2'};
+    h+=`<div class="card" style="padding:0;overflow:hidden;margin-bottom:.7rem">
+      <div style="background:${col.bg};color:#fff;padding:9px 14px;font-size:13px;font-weight:700">⚽ ${ronda}</div>`;
+    matches.forEach((m,i)=>{
+      const pr=preds[m.id];
+      const res=S.ligResults&&S.ligResults[m.id];
+      const bg=i%2===0?col.light:'#fff';
+      const sc=parseScore(pr); const resSc=parseScore(res);
+      const ganador=sc?(sc.h>sc.a?m.local:sc.h<sc.a?m.visita:'Penales'):'';
+      let ptTag='';
+      if(sc&&resSc){
+        if(sc.h===resSc.h&&sc.a===resSc.a) ptTag=`<span style="font-size:10px;background:#d4edda;color:#1a4a0a;padding:2px 6px;border-radius:4px;font-weight:700">+3</span>`;
+        else if((sc.h>sc.a&&resSc.h>resSc.a)||(sc.h<sc.a&&resSc.h<resSc.a)) ptTag=`<span style="font-size:10px;background:#fff3cd;color:#633806;padding:2px 6px;border-radius:4px;font-weight:700">+1</span>`;
+        else ptTag=`<span style="font-size:10px;background:#fde8e8;color:#7a1f1f;padding:2px 6px;border-radius:4px;font-weight:700">0</span>`;
+      }
+      const confTag=m.conf?`<span class="lig-conf confirmed">✓</span>`:`<span class="lig-conf pending">?</span>`;
+      let scoreHtml;
+      if(locked&&sc){
+        // Bloqueado — mostrar valor pero no editable
+        scoreHtml=`<div class="lig-score-wrap"><input class="lig-score-in" type="number" value="${sc.h}" disabled><span class="lig-dash">-</span><input class="lig-score-in" type="number" value="${sc.a}" disabled></div>`;
+      } else if(locked&&!sc){
+        scoreHtml=`<div style="font-size:10px;color:#aaa;font-style:italic">Sin pronóstico</div>`;
+      } else {
+        scoreHtml=`<div class="lig-score-wrap"><input class="lig-score-in" type="number" min="0" max="20" value="${sc?sc.h:''}" placeholder="0" onchange="setLigPred('${m.id}',this.value,document.getElementById('la_${m.id}').value)" id="lh_${m.id}"><span class="lig-dash">-</span><input class="lig-score-in" type="number" min="0" max="20" value="${sc?sc.a:''}" placeholder="0" onchange="setLigPred('${m.id}',document.getElementById('lh_${m.id}').value,this.value)" id="la_${m.id}"></div>`;
+      }
+      h+=`<div style="background:${bg};display:grid;grid-template-columns:24px 1fr 110px 80px;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.05)">
+        <div>${confTag}</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px">
+            <span style="font-weight:700;flex:1;text-align:right">${m.local}</span>
+            <span style="color:#ccc;font-size:10px">vs</span>
+            <span style="font-weight:700;flex:1">${m.visita}</span>
+          </div>
+          <div style="font-size:10px;color:#aaa;margin-top:1px">${m.fecha}${m.hora?" · "+m.hora+"h CDMX":""}${res?` · Real: <strong style="color:#185FA5">${res}</strong>`:''}</div>
+        </div>
+        <div style="display:flex;justify-content:center">${scoreHtml}</div>
+        <div style="display:flex;align-items:center;gap:4px;justify-content:flex-end">
+          ${ganador?`<span style="font-size:10px;color:#666;font-style:italic">${ganador}</span>`:''}
+          ${ptTag}
+        </div>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  el.innerHTML=h;
+}
+
+function setLigPred(mid,hv,av){
+  if(hv===''||av==='') return;
+  const h=parseInt(hv),a=parseInt(av);
+  if(isNaN(h)||isNaN(a)) return;
+  if(!S.ligPreds) S.ligPreds={};
+  if(!S.ligPreds[S.active]) S.ligPreds[S.active]={};
+  S.ligPreds[S.active][mid]=`${h}-${a}`;
+  saveSection('ligPreds',S.ligPreds);
+}
+
+// ── RANKING LIGUILLA (desde 0) ───────────────────────────────────
+function renderRankingLig(){
+  const el=document.getElementById('t-rankinglig');
+  const ap=calcPtsAwards; // referencia a función
+
+  const rk=S.participants.map(p=>{
+    const lp=calcPtsLiguilla(p);
+    const awards=calcPtsAwards(p);
+    const total=lp.pts+awards.pts;
+    return{name:p,...lp,ptsAwards:awards.pts,hitsAwards:awards.hits,total,ligPts:lp.pts};
+  }).sort((a,b)=>b.total-a.total||b.exact-a.exact);
+
+  const ligResCount=LIGUILLA_MATCHES.filter(m=>parseScore((S.ligResults||{})[m.id])).length;
+  const awResCount=Object.values(S.awardResults||{}).filter(v=>v&&v.trim()).length;
+  const anyData=ligResCount>0||awResCount>0;
+
+  let h=`<div class="alert a-info">
+    🏆 <strong>Ranking Liguilla</strong> — Empieza desde 0 para todos
+    · Partidos: <strong>${ligResCount}/${LIGUILLA_MATCHES.length}</strong>
+    · Premios: <strong>${awResCount}/11</strong>
+  </div>
+  <div class="alert a-warn" style="font-size:12px;margin-top:-4px">
+    Incluye: marcadores de liguilla (3pts exacto / 1pt ganador) + premios individuales (Balón de Oro, México, etc.)
+  </div>`;
+
+  if(!anyData){
+    h+=`<div class="empty">El ranking de liguilla aparece cuando el admin ingrese resultados de los partidos eliminatorios.</div>`;
+    el.innerHTML=h; return;
+  }
+
+  const maxPts=rk[0]?.total||1;
+  h+=`<div class="card">`;
+  rk.forEach((p,i)=>{
+    const pct=Math.round(p.total/maxPts*100)||0;
+    h+=`<div class="rnk-item">
+      <div class="rnk-pos ${['p1','p2','p3'][i]||''}">${i+1}</div>
+      <div class="rnk-name">
+        ${p.name}
+        <div style="font-size:10px;color:#888;margin-top:1px">
+          Liguilla: ${p.pts}pts (${p.exact}e ${p.sign}g/${p.total_lig||p.total-p.ptsAwards}) · Premios: ${p.ptsAwards}pts
+        </div>
+      </div>
+      <div class="rnk-bar-w"><div class="rnk-bar" style="width:${pct}%"></div></div>
+      <div class="rnk-pts"><strong>${p.total}</strong><span style="font-size:10px">total</span></div>
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // Si hay snapshot, mostrar también tabla comparativa
+  if(S.snapshotFG){
+    const rkFG=getRanking().sort((a,b)=>b.total-a.total);
+    const rkLig=[...rk];
+    h+=`<div class="card" style="margin-top:.7rem">
+      <div class="sec">Tabla comparativa — posición FG vs Liguilla</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <tr style="background:#f0f0e8">
+            <th style="padding:6px 10px;text-align:left">Participante</th>
+            <th style="padding:6px 10px;text-align:center">Pos. FG</th>
+            <th style="padding:6px 10px;text-align:center">Pts FG</th>
+            <th style="padding:6px 10px;text-align:center">Pts Liguilla</th>
+            <th style="padding:6px 10px;text-align:center;font-weight:700;color:#185FA5">Total Final</th>
+          </tr>
+          ${S.participants.map(p=>{
+            const fg=rkFG.findIndex(r=>r.name===p)+1;
+            const ptsFG=S.snapshotFG[p]||0;
+            const ptsLig=rk.find(r=>r.name===p)?.total||0;
+            const totalFinal=ptsFG+ptsLig;
+            return`<tr style="border-top:1px solid #f0f0e8">
+              <td style="padding:6px 10px;font-weight:700">${p}</td>
+              <td style="padding:6px 10px;text-align:center">${fg}°</td>
+              <td style="padding:6px 10px;text-align:center">${ptsFG}</td>
+              <td style="padding:6px 10px;text-align:center">${ptsLig}</td>
+              <td style="padding:6px 10px;text-align:center;font-weight:700;color:#185FA5;font-size:14px">${totalFinal}</td>
+            </tr>`;
+          }).join('')}
+        </table>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML=h;
 }
 
 loadFromFirebase();
