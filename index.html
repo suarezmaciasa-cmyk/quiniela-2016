@@ -1126,7 +1126,10 @@ function renderAdmin(){
   </div>`;
   h+=`<div class="card">
     <div class="sec">Cargar Excel de participante</div>
-    <div class="alert a-info">Detecta nombre de celda C3 en hoja "Fase de Grupos". Goles col G (local) e I (visitante).</div>
+    <div class="alert a-info">
+      📋 <strong>Fase de grupos:</strong> nombre en C3, hoja "Fase de Grupos", goles col H (local) y J (visitante).<br>
+      🏆 <strong>Liguilla:</strong> nombre en D3, hoja "Liguilla", goles col G (local) e I (visitante). Se detecta automáticamente.
+    </div>
     <div class="upload-zone" id="dz" onclick="document.getElementById('xlin').click()"
       ondragover="event.preventDefault();document.getElementById('dz').classList.add('drag')"
       ondragleave="document.getElementById('dz').classList.remove('drag')"
@@ -1425,6 +1428,10 @@ function handleFile(file){
       const wb=XLSX.read(e.target.result,{type:'array'});
 
       // ── Hoja 1: Fase de Grupos ───────────────────────
+      // ── Detectar tipo de Excel: Liguilla o Fase de Grupos ──
+      if(wb.SheetNames.includes('Liguilla') && !wb.SheetNames.includes('Fase de Grupos')){
+        handleLiguillaFile(wb, el); return;
+      }
       const ws=wb.Sheets['Fase de Grupos'];
       if(!ws){el.innerHTML=`<div class="alert a-err">No se encontró la hoja "Fase de Grupos".</div>`;return;}
       const nc=ws['C3'];
@@ -1744,6 +1751,75 @@ function renderRankingLig(){
   }
 
   el.innerHTML=h;
+}
+
+// ── IMPORTAR EXCEL DE LIGUILLA ────────────────────────────────────
+function handleLiguillaFile(wb, el){
+  try{
+    const ws = wb.Sheets['Liguilla'];
+    if(!ws){ el.innerHTML=`<div class="alert a-err">No se encontró la hoja "Liguilla".</div>`; return; }
+
+    // Nombre en D3 (col 4, idx 3)
+    const nc = ws[XLSX.utils.encode_cell({r:2, c:3})];
+    let nombre = nc && nc.v ? String(nc.v).trim() : '';
+    // Fallback a C3
+    if(!nombre){
+      const nc2 = ws[XLSX.utils.encode_cell({r:2, c:2})];
+      nombre = nc2 && nc2.v ? String(nc2.v).replace('← Escribe tu nombre','').trim() : '';
+    }
+    if(!nombre){ el.innerHTML=`<div class="alert a-err">⚠️ No se encontró el nombre en D3. Escríbelo en la celda D3 de la hoja Liguilla.</div>`; return; }
+
+    if(!S.ligPreds) S.ligPreds={};
+    if(!S.ligPreds[nombre]) S.ligPreds[nombre]={};
+
+    // Los 16avos empiezan en fila 7 (idx 6), goles en col G(idx 6) e I(idx 8)
+    // Mapeo de IDs en orden: r01..r16, o01..o08, c01..c04, s01..s02, t01, f01
+    const allIds=['r01','r02','r03','r04','r05','r06','r07','r08',
+                  'r09','r10','r11','r12','r13','r14','r15','r16',
+                  'o01','o02','o03','o04','o05','o06','o07','o08',
+                  'c01','c02','c03','c04','s01','s02','t01','f01'];
+
+    let count=0, bad=0;
+    // Estructura del Excel:
+    // Fila 7-22: 16avos (r01-r16)
+    // Fila 25: header octavos, fila 26: col hdrs, filas 27-34: octavos (o01-o08)
+    // Fila 36: header cuartos, fila 37: col hdrs, filas 38-41: cuartos (c01-c04)
+    // Fila 43: header semis, fila 44: col hdrs, filas 45-46: semis (s01-s02)
+    // Fila 48: header 3er lugar, fila 49: col hdrs, fila 50: 3er lugar (t01)
+    // Fila 52: header final, fila 53: col hdrs, fila 54: final (f01)
+    const sections=[
+      {ids:['r01','r02','r03','r04','r05','r06','r07','r08','r09','r10','r11','r12','r13','r14','r15','r16'], startRow:6},
+      {ids:['o01','o02','o03','o04','o05','o06','o07','o08'], startRow:26},
+      {ids:['c01','c02','c03','c04'], startRow:37},
+      {ids:['s01','s02'], startRow:44},
+      {ids:['t01'], startRow:49},
+      {ids:['f01'], startRow:53},
+    ];
+    sections.forEach(sec=>{
+      sec.ids.forEach((mid,i)=>{
+        const row=sec.startRow+i;
+        const cH=ws[XLSX.utils.encode_cell({r:row,c:6})]; // col G = goles local
+        const cA=ws[XLSX.utils.encode_cell({r:row,c:8})]; // col I = goles visitante
+        const hv=cH&&cH.v!==undefined?String(cH.v).trim():'';
+        const av=cA&&cA.v!==undefined?String(cA.v).trim():'';
+        if(hv!==''&&av!==''){
+          const h=parseInt(hv),a=parseInt(av);
+          if(!isNaN(h)&&!isNaN(a)&&h>=0&&a>=0){S.ligPreds[nombre][mid]=`${h}-${a}`;count++;}
+          else bad++;
+        }
+      });
+    });
+
+    if(!S.participants.includes(nombre)) S.participants.push(nombre);
+    S.active=nombre;
+    localStorage.setItem('q26_active', nombre);
+    save().then(()=>{
+      el.innerHTML=`<div class="alert a-ok">✅ <strong>${nombre}</strong> — ${count} pronósticos de liguilla importados${bad?` · ${bad} inválidos`:''}.</div>`;
+      renderAdmin();
+    });
+  } catch(err){
+    el.innerHTML=`<div class="alert a-err">Error leyendo liguilla: ${err.message}</div>`;
+  }
 }
 
 loadFromFirebase();
