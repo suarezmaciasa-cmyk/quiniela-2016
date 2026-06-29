@@ -1155,6 +1155,47 @@ function renderAdmin(){
     </div>
     <div id="res-fb"></div>
   </div>`;
+  // ── Resultados de Liguilla ──────────────────────────────────────
+  const ligRes=S.ligResults||{};
+  const ligDone=Object.keys(ligRes).filter(id=>ligRes[id]).length;
+  h+=`<div class="card">
+    <div class="sec">Resultados de liguilla (${ligDone}/${LIGUILLA_MATCHES.length} ingresados)</div>
+    <div class="alert a-info" style="font-size:12px">Ingresa el marcador al final del tiempo regular + tiempo extra. Los penales no se ingresan.</div>
+    ${['16avos','Octavos','Cuartos','Semis','3er Lugar','Final'].map(ronda=>{
+      const matches=LIGUILLA_MATCHES.filter(m=>m.ronda===ronda);
+      const col=({'16avos':'#F4901A','Octavos':'#5B2C8C','Cuartos':'#1A5FA8','Semis':'#2D6A1A','3er Lugar':'#4A4A4A','Final':'#A32D2D'})[ronda];
+      return `<div style="margin-bottom:10px">
+        <div style="background:${col};color:#fff;font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px 6px 0 0">${ronda}</div>
+        <div style="border:1px solid #e0e0d8;border-top:none;border-radius:0 0 6px 6px;overflow:hidden">
+          ${matches.map((m,i)=>{
+            const sc=parseScore(ligRes[m.id]);
+            const bg=i%2===0?'#fafaf8':'#ffffff';
+            const done=!!sc;
+            return `<div style="display:grid;grid-template-columns:1fr 110px auto;align-items:center;gap:6px;padding:7px 10px;background:${bg};border-bottom:1px solid #f0f0e8">
+              <div style="font-size:12px">
+                <strong>${m.local}</strong> <span style="color:#ccc;font-size:10px">vs</span> <strong>${m.visita}</strong>
+                <span style="font-size:10px;color:#aaa;margin-left:4px">${m.fecha}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px">
+                <input class="radm" type="number" min="0" max="20" style="width:36px;text-align:center;padding:3px"
+                  value="${sc?sc.h:''}" placeholder="0" id="lrh_${m.id}">
+                <span style="font-weight:700;color:#999">-</span>
+                <input class="radm" type="number" min="0" max="20" style="width:36px;text-align:center;padding:3px"
+                  value="${sc?sc.a:''}" placeholder="0" id="lra_${m.id}">
+              </div>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-green" style="padding:3px 8px;font-size:11px" onclick="saveLigResult('${m.id}')">
+                  ${done?'✓ Actualizar':'Guardar'}
+                </button>
+                ${done?`<button class="btn btn-red" style="padding:3px 8px;font-size:11px" onclick="deleteLigResult('${m.id}')">✕</button>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
   // ── Resultados de clasificación de grupos ──
   const gr=S.groupResults||{};
   const grDone=Object.keys(gr).filter(g=>gr[g]?.p1).length;
@@ -1339,6 +1380,23 @@ async function resetSnapshot(){
   S.snapshotFG=null;
   await saveSection('snapshotFG', null);
   renderAdmin();
+}
+
+function saveLigResult(mid){
+  const hv=document.getElementById('lrh_'+mid)?.value;
+  const av=document.getElementById('lra_'+mid)?.value;
+  if(hv===''||av===''||hv===undefined||av===undefined){alert('Ingresa ambos marcadores.');return;}
+  const h=parseInt(hv),a=parseInt(av);
+  if(isNaN(h)||isNaN(a)||h<0||a<0){alert('Marcador inválido.');return;}
+  if(!S.ligResults) S.ligResults={};
+  S.ligResults[mid]=`${h}-${a}`;
+  saveSection('ligResults',S.ligResults).then(()=>renderAdmin());
+}
+
+function deleteLigResult(mid){
+  if(!confirm('¿Borrar resultado de este partido?')) return;
+  delete S.ligResults[mid];
+  saveSection('ligResults',S.ligResults).then(()=>renderAdmin());
 }
 
 function saveAwardResult(key, val){
