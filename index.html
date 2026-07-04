@@ -1163,6 +1163,7 @@ function renderAdmin(){
   const ligDone=Object.keys(ligRes).filter(id=>ligRes[id]).length;
   h+=`<div class="card">
     <div class="sec">Resultados de liguilla (${ligDone}/${LIGUILLA_MATCHES.length} ingresados)</div>
+    <div class="alert a-warn" style="font-size:12px">⚠️ Los 16avos ya terminaron — ingresa sus resultados si aún no lo has hecho, luego ingresa los de octavos conforme se jueguen.</div>
     <div class="alert a-info" style="font-size:12px">Ingresa el marcador al final del tiempo regular + tiempo extra. Los penales no se ingresan.</div>
     ${['16avos','Octavos','Cuartos','Semis','3er Lugar','Final'].map(ronda=>{
       const matches=LIGUILLA_MATCHES.filter(m=>m.ronda===ronda);
@@ -1228,6 +1229,25 @@ function renderAdmin(){
         </div>`;
       }).join('')}
     </div>
+  </div>`;
+
+  // ── Cerrar edición de pronósticos de liguilla ──────
+  const editLocked = S.cfg.ligEditLocked || false;
+  h+=`<div class="card" style="border:2px solid ${editLocked?'#a32d2d':'#1a5fa8'}">
+    <div class="sec" style="color:${editLocked?'#a32d2d':'#1a5fa8'}">
+      ${editLocked ? '🔒 Edición cerrada' : '✏️ Edición de liguilla abierta'}
+    </div>
+    ${editLocked
+      ? `<div class="alert a-err" style="margin-bottom:8px">
+           Los participantes <strong>no pueden modificar</strong> sus pronósticos de liguilla.
+         </div>
+         <button class="btn btn-green" onclick="setLigEditLock(false)">🔓 Reabrir edición</button>`
+      : `<div style="font-size:13px;color:#666;margin-bottom:10px;line-height:1.6">
+           Mientras esté abierta, los participantes pueden editar sus pronósticos de liguilla.<br>
+           Ciérrala cuando quieras que nadie más haga cambios.
+         </div>
+         <button class="btn btn-red" onclick="setLigEditLock(true)">🔒 Cerrar edición de pronósticos</button>`
+    }
   </div>`;
 
   // ── Cerrar Fase de Grupos ──────────────────────────
@@ -1356,6 +1376,16 @@ function calcPtsAwards(participant){
     }
   });
   return {pts, hits};
+}
+
+async function setLigEditLock(locked){
+  const msg = locked
+    ? '¿Cerrar la edición? Los participantes ya no podrán cambiar sus pronósticos de liguilla.'
+    : '¿Reabrir la edición? Los participantes podrán modificar sus pronósticos de liguilla.';
+  if(!confirm(msg)) return;
+  S.cfg.ligEditLocked = locked;
+  await saveSection('cfg', S.cfg);
+  renderAdmin();
 }
 
 async function cerrarFaseGrupos(){
@@ -1600,31 +1630,32 @@ function handleFile(file){
 
 // ── LIGUILLA ─────────────────────────────────────────────────────
 const LIGUILLA_MATCHES = [
-  // 16 CRUCES CONFIRMADOS — fuente: FIFA/La Nación 27 Jun 2026
-  {id:'r01',ronda:'16avos',fecha:'28 Jun',hora:'13:00',local:'Sudáfrica',       visita:'Canadá',               conf:true},
-  {id:'r02',ronda:'16avos',fecha:'29 Jun',hora:'12:00',local:'Brasil',           visita:'Japón',                conf:true},
-  {id:'r03',ronda:'16avos',fecha:'29 Jun',hora:'15:30',local:'Alemania',         visita:'Paraguay',             conf:true},
-  {id:'r04',ronda:'16avos',fecha:'29 Jun',hora:'20:00',local:'Países Bajos',     visita:'Marruecos',            conf:true},
-  {id:'r05',ronda:'16avos',fecha:'30 Jun',hora:'12:00',local:'Costa de Marfil',  visita:'Noruega',              conf:true},
-  {id:'r06',ronda:'16avos',fecha:'30 Jun',hora:'16:00',local:'Francia',          visita:'Suecia',               conf:true},
-  {id:'r07',ronda:'16avos',fecha:'30 Jun',hora:'20:00',local:'México',           visita:'Ecuador',              conf:true},
-  {id:'r08',ronda:'16avos',fecha:'01 Jul',hora:'11:00',local:'Inglaterra',       visita:'Rep. D. del Congo',    conf:true},
-  {id:'r09',ronda:'16avos',fecha:'01 Jul',hora:'15:00',local:'Estados Unidos',   visita:'Bosnia y Herzegovina', conf:true},
-  {id:'r10',ronda:'16avos',fecha:'01 Jul',hora:'19:00',local:'Bélgica',          visita:'Senegal',              conf:true},
-  {id:'r11',ronda:'16avos',fecha:'02 Jul',hora:'14:00',local:'España',           visita:'Austria',              conf:true},
-  {id:'r12',ronda:'16avos',fecha:'02 Jul',hora:'18:00',local:'Portugal',         visita:'Croacia',              conf:true},
-  {id:'r13',ronda:'16avos',fecha:'03 Jul',hora:'13:00',local:'Australia',        visita:'Egipto',               conf:true},
-  {id:'r14',ronda:'16avos',fecha:'03 Jul',hora:'17:00',local:'Argentina',        visita:'Cabo Verde',           conf:true},
-  {id:'r15',ronda:'16avos',fecha:'03 Jul',hora:'20:30',local:'Colombia',         visita:'Ghana',                conf:true},
-  {id:'r16',ronda:'16avos',fecha:'03 Jul',hora:'22:00',local:'Suiza',            visita:'Argelia',              conf:true},
-  {id:'o01',ronda:'Octavos',fecha:'5 Jul',local:'Gan. R01/R02',visita:'Gan. R03/R04',conf:false},
-  {id:'o02',ronda:'Octavos',fecha:'5 Jul',local:'Gan. R05/R06',visita:'Gan. R07/R08',conf:false},
-  {id:'o03',ronda:'Octavos',fecha:'6 Jul',local:'Gan. R09/R10',visita:'Gan. R11/R12',conf:false},
-  {id:'o04',ronda:'Octavos',fecha:'6 Jul',local:'Gan. R13/R14',visita:'Gan. R15/R16',conf:false},
-  {id:'o05',ronda:'Octavos',fecha:'7 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
-  {id:'o06',ronda:'Octavos',fecha:'7 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
-  {id:'o07',ronda:'Octavos',fecha:'8 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
-  {id:'o08',ronda:'Octavos',fecha:'8 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
+  // 16AVOS — resultados finales (tiempo regular + extra, sin penales)
+  {id:'r01',ronda:'16avos',fecha:'28 Jun',local:'Sudáfrica',      visita:'Canadá',               conf:true, terminado:true},
+  {id:'r02',ronda:'16avos',fecha:'29 Jun',local:'Brasil',          visita:'Japón',                conf:true, terminado:true},
+  {id:'r03',ronda:'16avos',fecha:'29 Jun',local:'Alemania',        visita:'Paraguay',             conf:true, terminado:true},
+  {id:'r04',ronda:'16avos',fecha:'29 Jun',local:'Países Bajos',    visita:'Marruecos',            conf:true, terminado:true},
+  {id:'r05',ronda:'16avos',fecha:'30 Jun',local:'Costa de Marfil', visita:'Noruega',              conf:true, terminado:true},
+  {id:'r06',ronda:'16avos',fecha:'30 Jun',local:'Francia',         visita:'Suecia',               conf:true, terminado:true},
+  {id:'r07',ronda:'16avos',fecha:'30 Jun',local:'México',          visita:'Ecuador',              conf:true, terminado:true},
+  {id:'r08',ronda:'16avos',fecha:'01 Jul',local:'Inglaterra',      visita:'Rep. D. del Congo',   conf:true, terminado:true},
+  {id:'r09',ronda:'16avos',fecha:'01 Jul',local:'Estados Unidos',  visita:'Bosnia y Herzegovina', conf:true, terminado:true},
+  {id:'r10',ronda:'16avos',fecha:'01 Jul',local:'Bélgica',         visita:'Senegal',              conf:true, terminado:true},
+  {id:'r11',ronda:'16avos',fecha:'02 Jul',local:'España',          visita:'Austria',              conf:true, terminado:true},
+  {id:'r12',ronda:'16avos',fecha:'02 Jul',local:'Portugal',        visita:'Croacia',              conf:true, terminado:true},
+  {id:'r13',ronda:'16avos',fecha:'03 Jul',local:'Australia',       visita:'Egipto',               conf:true, terminado:true},
+  {id:'r14',ronda:'16avos',fecha:'03 Jul',local:'Argentina',       visita:'Cabo Verde',           conf:true, terminado:true},
+  {id:'r15',ronda:'16avos',fecha:'03 Jul',local:'Colombia',        visita:'Ghana',                conf:true, terminado:true},
+  {id:'r16',ronda:'16avos',fecha:'03 Jul',local:'Suiza',           visita:'Argelia',              conf:true, terminado:true},
+  // OCTAVOS — cruces confirmados
+  {id:'o01',ronda:'Octavos',fecha:'4 Jul', local:'Paraguay',       visita:'Francia',              conf:true},
+  {id:'o02',ronda:'Octavos',fecha:'4 Jul', local:'Canadá',         visita:'Marruecos',            conf:true},
+  {id:'o03',ronda:'Octavos',fecha:'5 Jul', local:'Brasil',         visita:'Noruega',              conf:true},
+  {id:'o04',ronda:'Octavos',fecha:'5 Jul', local:'México',         visita:'Inglaterra',           conf:true},
+  {id:'o05',ronda:'Octavos',fecha:'6 Jul', local:'Portugal',       visita:'España',               conf:true},
+  {id:'o06',ronda:'Octavos',fecha:'6 Jul', local:'Estados Unidos', visita:'Bélgica',              conf:true},
+  {id:'o07',ronda:'Octavos',fecha:'7 Jul', local:'Argentina',      visita:'Egipto',               conf:true},
+  {id:'o08',ronda:'Octavos',fecha:'7 Jul', local:'Suiza',          visita:'Colombia',             conf:true},
   {id:'c01',ronda:'Cuartos',fecha:'11 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
   {id:'c02',ronda:'Cuartos',fecha:'11 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
   {id:'c03',ronda:'Cuartos',fecha:'12 Jul',local:'Gan. Octavos',visita:'Gan. Octavos',conf:false},
@@ -1662,14 +1693,21 @@ function renderLiguilla(){
   h+=`<div class="prog-bar"><div class="prog-fill" style="width:${Math.round(predCount/LIGUILLA_MATCHES.length*100)}%"></div></div>
       <div class="prog-lbl"><span>${predCount}/${LIGUILLA_MATCHES.length} pronósticos</span><span>${resCount} resultados cargados</span></div>`;
 
-  h+=`<div class="alert a-ok" style="margin-top:.4rem">⚽ <strong>16avos de final</strong> — ✅ Los 16 cruces están confirmados · Del 28 Jun al 3 Jul</div>`;
+  const term16=LIGUILLA_MATCHES.filter(m=>m.ronda==='16avos'&&m.terminado).length;
+  const resLig=Object.keys(S.ligResults||{}).filter(id=>id.startsWith('r')).length;
+  h+=`<div class="alert a-ok" style="margin-top:.4rem">
+    ✅ <strong>16avos terminados</strong> (${resLig}/16 resultados en sistema) · 
+    🏆 <strong>Octavos en curso</strong> — 4 al 7 Jul
+  </div>`;
   h+=`<div style="background:#EAD9F7;border:0.5px solid #c5a8f0;border-radius:10px;padding:10px 14px;font-size:12px;color:#3d1a6e;margin-top:.4rem;line-height:1.7">
     <strong>⚽ ¿Cómo funcionan los penales?</strong><br>
     Solo pronósticas el marcador al final del tiempo regular + tiempo extra (90+30 min).<br>
     Los penales no se pronostican — solo determinan quién avanza pero no cambian el marcador oficial.<br>
     <span style="background:rgba(255,255,255,.5);padding:2px 8px;border-radius:6px;margin-right:6px">Ej: España 1-1 Austria → van a penales → <strong>si pronosticaste 1-1 ganas 3 pts ✓</strong></span>
   </div>`;
-  if(locked) h+=`<div class="locked-banner"><span class="lock-icon">🔒</span><div><strong>Pronósticos bloqueados</strong> — Ya tienes pronósticos guardados. El admin puede reemplazarlos subiendo un nuevo Excel de liguilla.</div></div>`;
+  const editClosed = S.cfg.ligEditLocked || false;
+  if(editClosed) h+=`<div class="locked-banner" style="background:#fdecea;border-color:#f5a0a0"><span class="lock-icon">🔒</span><div><strong>Edición cerrada por el admin</strong> — Ya no es posible modificar pronósticos de liguilla.</div></div>`;
+  else if(locked) h+=`<div class="locked-banner"><span class="lock-icon">🔒</span><div><strong>Pronósticos guardados</strong> — Ya tienes pronósticos cargados. El admin puede reemplazarlos subiendo un nuevo Excel de liguilla.</div></div>`;
   const rondas=[...new Set(LIGUILLA_MATCHES.map(m=>m.ronda))];
   rondas.forEach(ronda=>{
     const matches=LIGUILLA_MATCHES.filter(m=>m.ronda===ronda);
@@ -1721,6 +1759,7 @@ function renderLiguilla(){
 }
 
 function setLigPred(mid,hv,av){
+  if(S.cfg.ligEditLocked){alert('La edición de pronósticos está cerrada por el admin.');return;}
   if(hv===''||av==='') return;
   const h=parseInt(hv),a=parseInt(av);
   if(isNaN(h)||isNaN(a)) return;
