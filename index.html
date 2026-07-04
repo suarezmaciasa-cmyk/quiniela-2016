@@ -1680,7 +1680,9 @@ function renderLiguilla(){
   // ligPreds es ahora por participante: {nombre: {mid: score}}
   const allPreds=S.ligPreds||{};
   const preds=allPreds[S.active]||{};
-  const locked=Object.keys(preds).length>0; // bloqueado si ya tiene pronósticos
+  // Bloqueado solo si el admin cerró la edición explícitamente
+  const editClosed = S.cfg.ligEditLocked || false;
+  const locked = editClosed; // nunca bloqueamos por tener pronósticos — solo el admin puede cerrar
   const predCount=LIGUILLA_MATCHES.filter(m=>parseScore(preds[m.id])).length;
   const resCount=LIGUILLA_MATCHES.filter(m=>S.ligResults&&S.ligResults[m.id]).length;
   let h='';
@@ -1705,9 +1707,7 @@ function renderLiguilla(){
     Los penales no se pronostican — solo determinan quién avanza pero no cambian el marcador oficial.<br>
     <span style="background:rgba(255,255,255,.5);padding:2px 8px;border-radius:6px;margin-right:6px">Ej: España 1-1 Austria → van a penales → <strong>si pronosticaste 1-1 ganas 3 pts ✓</strong></span>
   </div>`;
-  const editClosed = S.cfg.ligEditLocked || false;
   if(editClosed) h+=`<div class="locked-banner" style="background:#fdecea;border-color:#f5a0a0"><span class="lock-icon">🔒</span><div><strong>Edición cerrada por el admin</strong> — Ya no es posible modificar pronósticos de liguilla.</div></div>`;
-  else if(locked) h+=`<div class="locked-banner"><span class="lock-icon">🔒</span><div><strong>Pronósticos guardados</strong> — Ya tienes pronósticos cargados. El admin puede reemplazarlos subiendo un nuevo Excel de liguilla.</div></div>`;
   const rondas=[...new Set(LIGUILLA_MATCHES.map(m=>m.ronda))];
   rondas.forEach(ronda=>{
     const matches=LIGUILLA_MATCHES.filter(m=>m.ronda===ronda);
@@ -1728,12 +1728,15 @@ function renderLiguilla(){
       }
       const confTag=m.conf?`<span class="lig-conf confirmed">✓</span>`:`<span class="lig-conf pending">?</span>`;
       let scoreHtml;
-      if(locked&&sc){
-        // Bloqueado — mostrar valor pero no editable
-        scoreHtml=`<div class="lig-score-wrap"><input class="lig-score-in" type="number" value="${sc.h}" disabled><span class="lig-dash">-</span><input class="lig-score-in" type="number" value="${sc.a}" disabled></div>`;
-      } else if(locked&&!sc){
-        scoreHtml=`<div style="font-size:10px;color:#aaa;font-style:italic">Sin pronóstico</div>`;
+      if(locked){
+        // Admin cerró edición — solo lectura
+        if(sc){
+          scoreHtml=`<div class="lig-score-wrap"><input class="lig-score-in" type="number" value="${sc.h}" disabled><span class="lig-dash">-</span><input class="lig-score-in" type="number" value="${sc.a}" disabled></div>`;
+        } else {
+          scoreHtml=`<div style="font-size:10px;color:#aaa;font-style:italic">Sin pronóstico</div>`;
+        }
       } else {
+        // Edición abierta — siempre mostrar inputs (con valor si ya existe)
         scoreHtml=`<div class="lig-score-wrap"><input class="lig-score-in" type="number" min="0" max="20" value="${sc?sc.h:''}" placeholder="0" onchange="setLigPred('${m.id}',this.value,document.getElementById('la_${m.id}').value)" id="lh_${m.id}"><span class="lig-dash">-</span><input class="lig-score-in" type="number" min="0" max="20" value="${sc?sc.a:''}" placeholder="0" onchange="setLigPred('${m.id}',document.getElementById('lh_${m.id}').value,this.value)" id="la_${m.id}"></div>`;
       }
       h+=`<div style="background:${bg};display:grid;grid-template-columns:24px 1fr 110px 80px;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.05)">
