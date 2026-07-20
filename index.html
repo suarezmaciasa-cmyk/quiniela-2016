@@ -1858,17 +1858,27 @@ function setLigPred(mid,hv,av){
 // ── RANKING LIGUILLA (desde 0) ───────────────────────────────────
 function renderRankingLig(){
   const el=document.getElementById('t-rankinglig');
-  // Usar snapshotFG como base si existe (puntos congelados y verificados)
-  const snap = S.snapshotFG || {};
-  const hasSnap = Object.keys(snap).filter(k=>k!=='_fecha').length > 0;
-  const rk=S.participants.map(p=>{
-    const lp=calcPtsLiguilla(p);
-    const awards=calcPtsAwards(p);
-    // Si hay snapshot, usarlo como base en lugar de recalcular liguilla
-    const ligBase = hasSnap ? (snap[p]||0) : lp.pts;
-    const total = ligBase + awards.pts;
-    return{name:p,...lp,ptsAwards:awards.pts,hitsAwards:awards.hits,
-           total, ligBase, fromSnap:hasSnap};
+  // Ranking final verificado manualmente (base de app + semis + final + premios)
+  // Base: imagen congelada de la app antes de semis
+  // Premios: leídos de Excels originales con normalización correcta
+  const FINAL_VERIFIED = {
+    "Luis Ramirez":                  {lig:33, sem:0, ter:0, fin:3,  prem:15, detail:"España✓ + Mbappé✓ + Raúl Jiménez✓ + Final exacto✓"},
+    "Luisa Trillo de la Selva":      {lig:32, sem:0, ter:1, fin:1,  prem:15, detail:"Unai Simón✓ + Mbappé✓ + Quiñones✓"},
+    "Bernie":                        {lig:28, sem:1, ter:0, fin:1,  prem:10, detail:"España✓ + Argentina subcampeón✓"},
+    "José ignacio González Briseño": {lig:26, sem:0, ter:0, fin:1,  prem:10, detail:"Mbappé✓ + Quiñones✓"},
+    "Toño Casanueva":                {lig:23, sem:1, ter:0, fin:1,  prem:10, detail:"España✓ + Argentina subcampeón✓"},
+    "Alicia":                        {lig:22, sem:0, ter:0, fin:1,  prem:10, detail:"Mbappé✓ + Quiñones✓"},
+    "JORGE EMILIO LANDETTA":         {lig:20, sem:1, ter:0, fin:1,  prem:10, detail:"Unai Simón✓ + Mbappé✓"},
+    "María":                         {lig:25, sem:0, ter:1, fin:1,  prem:5,  detail:"Mbappé✓"},
+    "Majós":                         {lig:23, sem:1, ter:1, fin:0,  prem:5,  detail:"Mbappé✓"},
+    "Enrique Coutiño":               {lig:24, sem:0, ter:0, fin:1,  prem:0,  detail:"sin aciertos en premios"},
+    "Andrés Gallardo Calderón":      {lig:5,  sem:3, ter:0, fin:0,  prem:15, detail:"España✓ + Unai Simón✓ + Andrés acertó semi exacta"},
+  };
+  const rk = S.participants.map(p=>{
+    const d = FINAL_VERIFIED[p] || {lig:0,sem:0,ter:0,fin:0,prem:0,detail:''};
+    const ligBase = d.lig + d.sem + d.ter + d.fin;
+    const total = ligBase + d.prem;
+    return {name:p, ligBase, ptsAwards:d.prem, total, detail:d.detail, d};
   }).sort((a,b)=>b.total-a.total||b.ligBase-a.ligBase);
   const ligResCount=LIGUILLA_MATCHES.filter(m=>parseScore((S.ligResults||{})[m.id])).length;
   const awResCount=Object.values(S.awardResults||{}).filter(v=>v&&v.trim()).length;
@@ -1894,9 +1904,7 @@ function renderRankingLig(){
       <div class="rnk-name">
         ${p.name}
         <div style="font-size:10px;color:#888;margin-top:1px">
-          ${p.fromSnap
-            ? `Liguilla: ${p.ligBase}pts (verificado) · Premios: ${p.ptsAwards}pts`
-            : `Liguilla: ${p.pts}pts (${p.exact}e ${p.sign}g) · Premios: ${p.ptsAwards}pts`}
+          Liguilla: ${p.ligBase}pts · Premios: ${p.ptsAwards}pts · <span style="color:#2D6A1A">${p.detail}</span>
         </div>
       </div>
       <div class="rnk-bar-w"><div class="rnk-bar" style="width:${pct}%"></div></div>
