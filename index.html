@@ -1093,16 +1093,22 @@ function normPremio(s){
   const accMap={'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','ñ':'n'};
   s=s.replace(/[áéíóúüñ]/g,c=>accMap[c]||c);
   const alias={
-    'mbappe':'kylian mbappe','kylian mbappe':'kylian mbappe','kilyan mbappe':'kylian mbappe',
+    'mbappe':'kylian mbappe','kylian mbappe':'kylian mbappe',
+    'kilyan mbappe':'kylian mbappe','kilyan mbape':'kylian mbappe',
     'allison becker':'alisson becker','allison':'alisson becker',
+    'alisson becker':'alisson becker',
     'dibu martinez':'emiliano martinez','emiliano martinez':'emiliano martinez',
-    'rodri':'rodri','rodrigo hernandez':'rodri','rodrigo hernandez':'rodri',
+    'rodri':'rodri','rodrigo hernandez':'rodri',
     'pau cubarsi':'pau cubarsi','cubarsi':'pau cubarsi',
-    'raul jimenez':'raul jimenez','raul jimenez':'raul jimenez',
+    'raul jimenez':'raul jimenez',
     'paises bajos':'paises bajos','holanda':'paises bajos',
     'unai simon':'unai simon',
-    'quinones':'quinones','quñones':'quinones','quiñones':'quinones',
-    '16avos':'16avos de final',
+    'quinones':'quinones','quinones':'quinones','quñones':'quinones',
+    'julian quinones':'quinones','julian quinones':'quinones',
+    '16avos':'16avos de final','16avos de final':'16avos de final',
+    'octavos':'octavos de final','octavos de final':'octavos de final',
+    'cuartos':'cuartos de final','cuartos de final':'cuartos de final',
+    '3er lugar':'3er lugar','tercer lugar':'3er lugar',
   };
   return alias[s]||s;
 }
@@ -1747,12 +1753,12 @@ const LIGUILLA_MATCHES = [
   {id:'c03',ronda:'Cuartos',fecha:'11 Jul',local:'Noruega',        visita:'Inglaterra', conf:true},
   {id:'c04',ronda:'Cuartos',fecha:'11 Jul',local:'Argentina',      visita:'Suiza',      conf:true},
   // SEMIS
-  {id:'s01',ronda:'Semis',fecha:'15 Jul',local:'Gan. Cuartos',visita:'Gan. Cuartos',conf:false},
-  {id:'s02',ronda:'Semis',fecha:'16 Jul',local:'Gan. Cuartos',visita:'Gan. Cuartos',conf:false},
+  {id:'s01',ronda:'Semis',fecha:'15 Jul',local:'Francia',  visita:'España',    conf:true,terminado:true},
+  {id:'s02',ronda:'Semis',fecha:'16 Jul',local:'Inglaterra',visita:'Argentina', conf:true,terminado:true},
   // 3ER LUGAR
-  {id:'t01',ronda:'3er Lugar',fecha:'19 Jul',local:'Perd. Semi 1',visita:'Perd. Semi 2',conf:false},
+  {id:'t01',ronda:'3er Lugar',fecha:'18 Jul',local:'Francia',  visita:'Inglaterra',conf:true,terminado:true},
   // FINAL
-  {id:'f01',ronda:'Final',fecha:'19 Jul',local:'Gan. Semi 1',visita:'Gan. Semi 2',conf:false},
+  {id:'f01',ronda:'Final',fecha:'19 Jul',local:'España',    visita:'Argentina', conf:true,terminado:true},
 ];
 
 const RONDA_COLORS={
