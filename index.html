@@ -1858,12 +1858,18 @@ function setLigPred(mid,hv,av){
 // ── RANKING LIGUILLA (desde 0) ───────────────────────────────────
 function renderRankingLig(){
   const el=document.getElementById('t-rankinglig');
+  // Usar snapshotFG como base si existe (puntos congelados y verificados)
+  const snap = S.snapshotFG || {};
+  const hasSnap = Object.keys(snap).filter(k=>k!=='_fecha').length > 0;
   const rk=S.participants.map(p=>{
     const lp=calcPtsLiguilla(p);
     const awards=calcPtsAwards(p);
-    const total=lp.pts+awards.pts;
-    return{name:p,...lp,ptsAwards:awards.pts,hitsAwards:awards.hits,total,ligPts:lp.pts};
-  }).sort((a,b)=>b.total-a.total||b.exact-a.exact);
+    // Si hay snapshot, usarlo como base en lugar de recalcular liguilla
+    const ligBase = hasSnap ? (snap[p]||0) : lp.pts;
+    const total = ligBase + awards.pts;
+    return{name:p,...lp,ptsAwards:awards.pts,hitsAwards:awards.hits,
+           total, ligBase, fromSnap:hasSnap};
+  }).sort((a,b)=>b.total-a.total||b.ligBase-a.ligBase);
   const ligResCount=LIGUILLA_MATCHES.filter(m=>parseScore((S.ligResults||{})[m.id])).length;
   const awResCount=Object.values(S.awardResults||{}).filter(v=>v&&v.trim()).length;
   const anyData=ligResCount>0||awResCount>0;
@@ -1888,7 +1894,9 @@ function renderRankingLig(){
       <div class="rnk-name">
         ${p.name}
         <div style="font-size:10px;color:#888;margin-top:1px">
-          Liguilla: ${p.pts}pts (${p.exact}e ${p.sign}g) · Premios: ${p.ptsAwards}pts
+          ${p.fromSnap
+            ? `Liguilla: ${p.ligBase}pts (verificado) · Premios: ${p.ptsAwards}pts`
+            : `Liguilla: ${p.pts}pts (${p.exact}e ${p.sign}g) · Premios: ${p.ptsAwards}pts`}
         </div>
       </div>
       <div class="rnk-bar-w"><div class="rnk-bar" style="width:${pct}%"></div></div>
