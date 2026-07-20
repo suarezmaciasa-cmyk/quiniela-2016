@@ -1414,6 +1414,49 @@ function renderAdmin(){
     </div>
   </div>`;
 
+  // ── Editar pronósticos de premios por participante ───────────
+  const ap = S.awardPreds || {};
+  const ar2 = S.awardResults || {};
+  const selPart = S._adminAwardPart || S.participants[0] || '';
+  h+=`<div class="card">
+    <div class="sec">✏️ Editar pronósticos de premios por participante</div>
+    <div class="alert a-info" style="font-size:12px;margin-bottom:8px">
+      Selecciona un participante y edita sus pronósticos de premios directamente. 
+      Los cambios se guardan en Firebase al hacer clic en "Guardar".
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;font-weight:700;color:#555">Participante:</label>
+      <select class="adm-sel" id="award-part-sel" onchange="S._adminAwardPart=this.value;renderAdmin()" style="margin-left:8px;font-size:13px">
+        ${S.participants.map(p=>`<option value="${p}" ${p===selPart?'selected':''}>${p}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px" id="award-edit-grid">
+      ${AWARD_KEYS.map(({key,label,pts})=>{
+        const pred = (ap[selPart]||{})[key]||'';
+        const real = ar2[key]||'';
+        const hit = pred && real && normPremio(pred)===normPremio(real);
+        const bg = hit?'#e8f5e9':pred&&real?'#fdecea':'#fffde7';
+        const icon = hit?'✓':pred&&real?'✗':'·';
+        const iconColor = hit?'#2D6A1A':pred&&real?'#a32d2d':'#888';
+        return `<div style="padding:8px 10px;background:${bg};border-radius:8px;border:1px solid #e0e0d8">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:12px;font-weight:700">${label}</span>
+            <span style="font-size:11px;font-weight:700;color:${iconColor}">${icon} ${pts}pts</span>
+          </div>
+          ${real?`<div style="font-size:10px;color:#555;margin-bottom:4px">Real: <strong>${real}</strong></div>`:''}
+          <input class="adm-inp" style="width:100%;font-size:12px;box-sizing:border-box"
+            id="ap_${key}"
+            placeholder="Pronóstico..."
+            value="${pred}">
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+      <button class="btn btn-blue" onclick="saveAwardPreds('${selPart}')">💾 Guardar pronósticos de ${selPart}</button>
+      <span id="award-save-fb" style="font-size:12px;color:#2D6A1A"></span>
+    </div>
+  </div>`;
+
   h+=`<div class="card">
     <div class="sec">Cambiar contraseña</div>
     <div style="display:flex;gap:8px">
@@ -1469,6 +1512,23 @@ function calcPtsAwards(participant){
     }
   });
   return {pts, hits};
+}
+
+async function saveAwardPreds(nombre){
+  if(!nombre) return;
+  if(!S.awardPreds) S.awardPreds={};
+  if(!S.awardPreds[nombre]) S.awardPreds[nombre]={};
+  AWARD_KEYS.forEach(({key})=>{
+    const el=document.getElementById('ap_'+key);
+    if(el){
+      const val=el.value.trim();
+      if(val) S.awardPreds[nombre][key]=val;
+      else delete S.awardPreds[nombre][key];
+    }
+  });
+  await saveSection('awardPreds',S.awardPreds);
+  const fb=document.getElementById('award-save-fb');
+  if(fb){fb.textContent='✅ Guardado';setTimeout(()=>{fb.textContent='';renderAdmin();},1500);}
 }
 
 async function setLigEditLock(locked){
