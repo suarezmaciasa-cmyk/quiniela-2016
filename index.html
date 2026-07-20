@@ -1086,35 +1086,120 @@ function renderRanking(){
 }
 
 // ── PREMIOS ───────────────────────────────────────
+// Normalizar texto para comparar premios
+function normPremio(s){
+  if(!s) return '';
+  s=s.toLowerCase().trim();
+  const accMap={'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','ñ':'n'};
+  s=s.replace(/[áéíóúüñ]/g,c=>accMap[c]||c);
+  const alias={
+    'mbappe':'kylian mbappe','kylian mbappe':'kylian mbappe','kilyan mbappe':'kylian mbappe',
+    'allison becker':'alisson becker','allison':'alisson becker',
+    'dibu martinez':'emiliano martinez','emiliano martinez':'emiliano martinez',
+    'rodri':'rodri','rodrigo hernandez':'rodri','rodrigo hernandez':'rodri',
+    'pau cubarsi':'pau cubarsi','cubarsi':'pau cubarsi',
+    'raul jimenez':'raul jimenez','raul jimenez':'raul jimenez',
+    'paises bajos':'paises bajos','holanda':'paises bajos',
+    'unai simon':'unai simon',
+    'quinones':'quinones','quñones':'quinones','quiñones':'quinones',
+    '16avos':'16avos de final',
+  };
+  return alias[s]||s;
+}
+
+const AWARD_DEFS=[
+  {key:'campeon',    pts:10, label:'🥇 Campeón'},
+  {key:'subcampeon', pts:5,  label:'🥈 Subcampeón'},
+  {key:'ter',        pts:5,  label:'🥉 3er Lugar'},
+  {key:'cto',        pts:5,  label:'4° Lugar'},
+  {key:'balon',      pts:5,  label:'🏆 Balón de Oro'},
+  {key:'guante',     pts:5,  label:'🧤 Guante de Oro'},
+  {key:'bota',       pts:5,  label:'👟 Bota de Oro'},
+  {key:'joven',      pts:5,  label:'🌟 Mejor Joven'},
+  {key:'goleadorMex',pts:5,  label:'⚽ Goleador México'},
+  {key:'lugarMex',   pts:5,  label:'🌍 Lugar México'},
+  {key:'fairplay',   pts:5,  label:'🤝 Fair Play'},
+];
+
 function renderPremios(){
   const el=document.getElementById('t-premios');
-  const n=S.participants.length,total=n*S.cfg.cuota;
-  const reg=Math.round(total*S.cfg.reg/100),lig=total-reg;
-  const a1=Math.round(reg*S.cfg.p1/100),a2=Math.round(reg*S.cfg.p2/100),a3=reg-a1-a2;
-  const rk=getRanking();
-  const resCount=MATCHES.filter(m=>parseScore(S.results[m.id])).length;
-  let h=`<div class="card">
-    <div style="font-size:30px;font-weight:700;color:#185FA5">$${total.toLocaleString()}</div>
-    <div style="font-size:13px;color:#666;margin-top:4px">${n} participantes × $${S.cfg.cuota.toLocaleString()}</div>
-    <div class="prem-grid">
-      <div class="prem-box"><div class="prem-amt">$${reg.toLocaleString()}</div><div class="prem-lbl">Fase regular (${S.cfg.reg}%)</div></div>
-      <div class="prem-box"><div class="prem-amt">$${lig.toLocaleString()}</div><div class="prem-lbl">Liguilla (${100-S.cfg.reg}%)</div></div>
+  const ar=S.awardResults||{};
+  const ap=S.awardPreds||{};
+  const hasResults=Object.keys(ar).some(k=>ar[k]);
+
+  let h='';
+
+  // ── RESULTADOS REALES ─────────────────────────────────────
+  h+=`<div class="card">
+    <div class="sec">Resultados reales — Premios FIFA 2026</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px">
+      ${AWARD_DEFS.map(({key,pts,label})=>{
+        const val=ar[key]||'—';
+        const hasVal=ar[key]&&ar[key].trim();
+        return `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${hasVal?'#f0f7f0':'#f8f8f8'};border-radius:8px;border:1px solid ${hasVal?'#c8e6c9':'#e0e0d8'}">
+          <span style="font-size:13px;min-width:20px">${label.split(' ')[0]}</span>
+          <div style="flex:1">
+            <div style="font-size:10px;color:#888;font-weight:500">${label.substring(label.indexOf(' ')+1)} · ${pts}pts</div>
+            <div style="font-size:13px;font-weight:700;color:${hasVal?'#1a4a0a':'#999'}">${val}</div>
+          </div>
+        </div>`;
+      }).join('')}
     </div>
-  </div>
-  <div class="card">
-    <div class="sec">Distribución fase regular</div>
-    <div class="dist-row"><span>🥇 1er lugar (${S.cfg.p1}%)</span><strong>$${a1.toLocaleString()}</strong></div>
-    <div class="dist-row"><span>🥈 2do lugar (${S.cfg.p2}%)</span><strong>$${a2.toLocaleString()}</strong></div>
-    <div class="dist-row"><span>🥉 3er lugar (${S.cfg.p3}%)</span><strong>$${a3.toLocaleString()}</strong></div>
   </div>`;
-  if(resCount>0&&rk.length){
-    const prizes=[a1,a2,a3];
-    h+=`<div class="card"><div class="sec">Líderes actuales</div>`;
-    rk.slice(0,3).forEach((p,i)=>{
-      h+=`<div class="dist-row"><span>${['🥇','🥈','🥉'][i]} <strong>${p.name}</strong> — ${p.pts} pts</span><strong style="color:#185FA5">$${prizes[i].toLocaleString()}</strong></div>`;
-    });
-    h+=`</div>`;
-  }
+
+  // ── TABLA COMPARATIVA ─────────────────────────────────────
+  h+=`<div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:10px 14px;border-bottom:1px solid #f0f0e8">
+      <div class="sec" style="margin:0">Pronósticos vs Resultados — tabla comparativa</div>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:700px">
+        <thead>
+          <tr style="background:#f0f0e8">
+            <th style="padding:8px 10px;text-align:left;font-weight:700;position:sticky;left:0;background:#f0f0e8;min-width:120px">Premio</th>
+            <th style="padding:8px 6px;text-align:center;font-weight:700;background:#e8f0e8;color:#1a4a0a">Real ✓</th>
+            ${S.participants.map(p=>`<th style="padding:8px 6px;text-align:center;font-weight:600;min-width:90px">${p.split(' ')[0]}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${AWARD_DEFS.map(({key,pts,label},ri)=>{
+            const real=ar[key]||'';
+            const rowBg=ri%2===0?'#fff':'#fafaf8';
+            return `<tr style="background:${rowBg}">
+              <td style="padding:7px 10px;font-weight:600;position:sticky;left:0;background:${rowBg};border-right:1px solid #f0f0e8">${label}<br><span style="font-size:9px;color:#888">${pts}pts</span></td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#1a4a0a;background:#e8f0e8">${real||'—'}</td>
+              ${S.participants.map(p=>{
+                const pred=(ap[p]&&ap[p][key])||'';
+                if(!pred) return `<td style="padding:7px 6px;text-align:center;color:#ccc">—</td>`;
+                const hit=real&&normPremio(pred)===normPremio(real);
+                const bg=hit?'#d4edda':real?'#fde8e8':'#fff9e6';
+                const fg=hit?'#1a4a0a':real?'#7a1f1f':'#444';
+                const icon=hit?'✓':real?'✗':'·';
+                return `<td style="padding:7px 6px;text-align:center;background:${bg};color:${fg};font-weight:${hit?'700':'400'}">
+                  <span style="font-size:9px">${icon}</span> ${pred}
+                </td>`;
+              }).join('')}
+            </tr>`;
+          }).join('')}
+          <tr style="background:#f0f0e8;font-weight:700">
+            <td style="padding:8px 10px;position:sticky;left:0;background:#f0f0e8">Total premios</td>
+            <td style="padding:8px 6px;text-align:center;background:#e8f0e8"></td>
+            ${S.participants.map(p=>{
+              const pap=ap[p]||{};
+              let tot=0;
+              AWARD_DEFS.forEach(({key,pts})=>{
+                const pred=pap[key]||'';
+                const real=ar[key]||'';
+                if(pred&&real&&normPremio(pred)===normPremio(real)) tot+=pts;
+              });
+              return `<td style="padding:8px 6px;text-align:center;color:#185FA5">${tot>0?tot+'pts':'0'}</td>`;
+            }).join('')}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+
   el.innerHTML=h;
 }
 
