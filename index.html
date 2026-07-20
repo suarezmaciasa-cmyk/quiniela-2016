@@ -1090,8 +1090,10 @@ function renderRanking(){
 function normPremio(s){
   if(!s) return '';
   s=s.toLowerCase().trim();
-  const accMap={'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u','ñ':'n'};
-  s=s.replace(/[áéíóúüñ]/g,c=>accMap[c]||c);
+  // Reemplazar ñ→n ANTES de quitar acentos (para que quñones y quiñones coincidan)
+  s=s.replace(/ñ/g,'n');
+  const accMap={'á':'a','é':'e','í':'i','ó':'o','ú':'u','ü':'u'};
+  s=s.replace(/[áéíóúü]/g,c=>accMap[c]||c);
   const alias={
     'mbappe':'kylian mbappe','kylian mbappe':'kylian mbappe',
     'kilyan mbappe':'kylian mbappe','kilyan mbape':'kylian mbappe',
